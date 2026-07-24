@@ -89,7 +89,7 @@ export default function CadastroPage() {
     const [carregandoInfo, setCarregandoInfo] = useState(false);
     const [funcaoSelecionada, setFuncaoSelecionada] = useState<string | null>(null);
 
-    const isAdminGlobal = user?.perfil === "🔑 Administrador - Todas as bases";
+    const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
 
     const usuariosFiltrados = usuarios
         .filter((u) =>
@@ -105,7 +105,7 @@ export default function CadastroPage() {
             u.nome.toLowerCase().includes(busca.toLowerCase()) ||
             String(u.id).includes(busca)
         )
-        .filter((u) => u.perfil !== "🔑 Administrador - Todas as bases");
+        .filter((u) => u.perfil !== "Administrador / CISBAF");
 
     const basesVisiveis = isAdminGlobal ? bases : bases.filter((base) => base.nome === user?.base);
     const { authFetch } = useAuthFetch();
@@ -423,6 +423,7 @@ export default function CadastroPage() {
                                                 <option value="Técnico de Enfermagem">Técnico de Enfermagem</option>
                                                 <option value="Enfermeiro">Enfermeiro</option>
                                                 <option value="Médico">Médico</option>
+                                                {user?.perfil === "Administrador / CISBAF" && (<option value="CISBAF">CISBAF</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-1">
@@ -434,9 +435,9 @@ export default function CadastroPage() {
                                                 required
                                             >
                                                 <option value="">Selecione</option>
-                                                <option value="Administrador">Administrador</option>
-                                                <option value="Usuario">Usuário</option>
-                                                {user?.perfil === "🔑 Administrador - Todas as bases" && (<option value="🔑 Administrador - Todas as bases">🔑 Administrador - Todas as bases</option>)}
+                                                <option value="Coordenador de Base">Coordenador de Base</option>
+                                                <option value="Colaborador">Colaborador</option>
+                                                {user?.perfil === "Administrador / CISBAF" && (<option value="Administrador / CISBAF">Administrador / CISBAF</option>)}
                                             </select>
                                         </div>
 
@@ -650,6 +651,7 @@ export default function CadastroPage() {
                                 <option value="Técnico de Enfermagem">Técnico de Enfermagem</option>
                                 <option value="Enfermeiro">Enfermeiro</option>
                                 <option value="Médico">Médico</option>
+                                {user?.perfil === "Administrador / CISBAF" && (<option value="CISBAF">CISBAF</option>)}
                             </select>
 
                             <label className="text-xs font-semibold">Perfil</label>
@@ -658,8 +660,9 @@ export default function CadastroPage() {
                                 onChange={(e) => setPerfil(e.target.value)}
                                 className="w-full border rounded-lg px-3 py-2"
                             >
-                                <option value="Administrador">Administrador</option>
-                                <option value="Usuario">Usuário</option>
+                                <option value="Coordenador de Base">Coordenador de Base</option>
+                                <option value="Colaborador">Colaborador</option>
+                                {user?.perfil === "Administrador / CISBAF" && (<option value="Administrador / CISBAF">Administrador / CISBAF</option>)}
                             </select>
                             <label className="text-xs font-semibold">Par</label>
 

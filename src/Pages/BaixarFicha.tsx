@@ -91,8 +91,8 @@ export default function BaixarFicha() {
 	
 	const { user } = useUserSession();
 	const userBase = user?.base;
-	const isAdminGlobal = user?.perfil === "🔑 Administrador - Todas as bases";
-	const isAdmin = user?.perfil === "Administrador";
+	const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+	const isAdmin = user?.perfil === "Coordenador de Base";
 	const { authFetch } = useAuthFetch();
 	
 

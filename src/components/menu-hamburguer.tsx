@@ -43,14 +43,14 @@ export default function MenuHamburguer() {
 
     
     const fichasVisiveis =
-        user?.perfil === "Usuario"
+        user?.perfil === "Colaborador"
             ? fichas.filter(
                 (ficha) =>
                     ficha.nome === user.funcao ||
                     ficha.nome === "Liderado > Liderança" ||
                     ficha.nome === "Simulação bp-TEAM"
             )
-            : user?.perfil === "Administrador"
+            : user?.perfil === "Coordenador de Base"
                 ? fichas.filter(
                     (ficha) =>
                         ficha.nome === user.funcao ||

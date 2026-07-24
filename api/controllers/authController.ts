@@ -28,7 +28,7 @@ export async function login(req: Request, res: Response) {
       `SELECT *
        FROM usuarios
        WHERE senha = $1
-       AND base = $2 AND perfil='🔑 Administrador - Todas as bases'`,
+       AND base = $2 AND perfil='Administrador / CISBAF'`,
       [senha, base]
     );
 

@@ -93,7 +93,7 @@ export default function PlanoDesenvolvimento() {
   const { authFetch } = useAuthFetch();
 
   
-  const [filtroBase, setFiltroBase] = useState(user?.perfil === '🔑 Administrador - Todas as bases' ? '' : user?.base);
+  const [filtroBase, setFiltroBase] = useState(user?.perfil === 'Administrador / CISBAF' ? '' : user?.base);
 
 
   const [bases, setBases] = useState<string[]>([]);
@@ -513,7 +513,7 @@ export default function PlanoDesenvolvimento() {
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 mb-1">Base</label>
               <select
-                disabled={user?.perfil !== '🔑 Administrador - Todas as bases'}
+                disabled={user?.perfil !== 'Administrador / CISBAF'}
                 value={filtroBase}
                 onChange={(e) => setFiltroBase(e.target.value)}
                 className="border rounded-md px-3 py-2 text-sm bg-white"

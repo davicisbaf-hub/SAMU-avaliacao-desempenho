@@ -22,7 +22,7 @@ export function PrivateGlobal({
 }: Props) {
   const { user } = useUserSession();
 
-  if (user?.perfil === "Usuario" || user?.perfil === "Administrador") {
+  if (user?.perfil === "Colaborador" || user?.perfil === "Coordenador de Base") {
     return <Navigate to="/login" replace />;
   }
 

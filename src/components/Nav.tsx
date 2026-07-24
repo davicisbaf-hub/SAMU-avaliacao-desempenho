@@ -47,7 +47,7 @@ export default function Nav() {
 
 
     const fichasVisiveis =
-    user?.perfil === "Usuario"
+    user?.perfil === "Colaborador"
         ? fichas.filter(
             (ficha) =>
                 ficha.nome === user.funcao ||
@@ -56,7 +56,7 @@ export default function Nav() {
                 ficha.nome === "Avaliação dos Pares"
 
         )
-        : user?.perfil === "Administrador"
+        : user?.perfil === "Coordenador de Base"
         ? fichas.filter(
             (ficha) =>
             ficha.nome === user.funcao ||
@@ -161,7 +161,7 @@ export default function Nav() {
                     </div>
                 </div>
 
-                {user?.perfil === "🔑 Administrador - Todas as bases" && (
+                {user?.perfil === "Administrador / CISBAF" && (
                     <div className="px-4 py-3 border-b border-sidebar-border">
                         <div className="space-y-4">
                             <div className="space-y-2 text-left">
@@ -201,7 +201,7 @@ export default function Nav() {
                         Inicio
                     </NavLink>
                     
-                    {user?.perfil !== "Usuario" && (
+                    {user?.perfil !== "Colaborador" && (
                         <NavLink to="/painel-kpis" className={({ isActive }) =>
                             `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                                 isActive
@@ -214,7 +214,7 @@ export default function Nav() {
                         </NavLink>
                     )}
 
-                    {user?.perfil !== "Usuario" && (
+                    {user?.perfil !== "Colaborador" && (
                         <NavLink to="/baixarFicha" className={({ isActive }) =>
                             `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                                 isActive
@@ -293,7 +293,7 @@ export default function Nav() {
                             Autoavaliação
                         </NavLink>
 
-                        {user?.perfil !== "Usuario" && (
+                        {user?.perfil !== "Colaborador" && (
                             <NavLink to="/plano-desenvolvimento" 
                                 className={({ isActive }) =>
                                     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
@@ -307,7 +307,7 @@ export default function Nav() {
                             </NavLink>
                         )}
 
-                        {user?.perfil !== "Usuario" && (
+                        {user?.perfil !== "Colaborador" && (
                             <NavLink to="/cadastro" 
                                 className={({ isActive }) =>
                                     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
@@ -321,7 +321,7 @@ export default function Nav() {
                             </NavLink>
                         )}
                         
-                        {user?.perfil !== "Usuario" && user?.perfil !== "Administrador" && (
+                        {user?.perfil !== "Colaborador" && user?.perfil !== "Coordenador de Base" && (
                             <NavLink to="/configuracoes" 
                                 className={({ isActive }) =>
                                     `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${

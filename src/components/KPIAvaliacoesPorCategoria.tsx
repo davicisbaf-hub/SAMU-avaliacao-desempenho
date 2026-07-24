@@ -41,7 +41,7 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
   const [avaliacoesFull, setAvaliacoesFull] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [tiposFiltrados, setTiposFiltrados] = useState<Set<string>>(new Set([`${user?.funcao}`, "Avaliação Par"]));
-  const isAdminGlobal = user?.perfil === "🔑 Administrador - Todas as bases";
+  const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
 
   useEffect(() => {
     async function carregarKPIs() {
