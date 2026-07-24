@@ -318,19 +318,18 @@ export default function App() {
                   onChange={(e) => setBaseSelecionada(e.target.value)}
                   className="w-full border border-slate-300 bg-white rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#cd0048]/60 appearance-none"
                 >
-                  <option value="">Selecione seu acesso…</option>
-                  {/* <optgroup label="── Administração ──">
-                    <option value="todas as bases">
+                    <option value="">Selecione seu acesso…</option>
+                  
+                    <option value="🔑 Administrador CRUR-BF (todas as bases)">
                       🔑 Administrador CRUR-BF (todas as bases)
                     </option>
-                  </optgroup> */}
-                  <optgroup label="── Bases ──">
+                  {/* <optgroup label="── Bases ──">
                     {base.map((base) => (
                       <option key={base.id} value={base.nome} className="text-black">
                         {base.nome}
                       </option>
                     ))}
-                  </optgroup>
+                  </optgroup> */}
                 </select>
               </div>
 

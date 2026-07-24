@@ -318,7 +318,7 @@ export default function CadastroPage() {
                             </div>
 
                             {/* Base */}
-                            <div className="flex flex-wrap items-center gap-3">
+                            {/* <div className="flex flex-wrap items-center gap-3">
                                 <span className="text-sm font-semibold text-foreground">Base:</span>
 
                                 <div className="flex flex-wrap gap-2">
@@ -340,7 +340,7 @@ export default function CadastroPage() {
                                         </button>
                                     ))}
                                 </div>
-                            </div>
+                            </div> */}
 
                             {/* Resumo */}
                             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">

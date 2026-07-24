@@ -290,19 +290,6 @@ export default function BaixarFicha() {
 									placeholder="Avaliado"
 									className="border rounded-lg px-3 py-2"
 								/>
-									
-								{isAdminGlobal && (
-									<select
-										value={filtroBase}
-										onChange={(e) => setFiltroBase(e.target.value)}
-										className="border rounded-lg px-3 py-2"
-									>
-										<option value="">Todas as bases</option>
-										{bases.map(base => (
-											<option key={base.id} value={base.nome}>{base.nome}</option>
-										))}
-									</select>
-								)}
 
 								<select
 									value={filtroTipo}
