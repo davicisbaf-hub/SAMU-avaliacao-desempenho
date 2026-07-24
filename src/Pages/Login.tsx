@@ -320,8 +320,8 @@ export default function App() {
                 >
                     <option value="">Selecione seu acesso…</option>
                   
-                    <option value="🔑 Administrador CRUR-BF (todas as bases)">
-                      🔑 Administrador CRUR-BF (todas as bases)
+                    <option value="🔑 Administrador / CISBAF (todas as bases)">
+                      🔑 Administrador / CISBAF (todas as bases)
                     </option>
                   {/* <optgroup label="── Bases ──">
                     {base.map((base) => (

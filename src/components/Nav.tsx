@@ -152,7 +152,7 @@ export default function Nav() {
                                     Todas
                                 </button>
                                 {bases
-                                    .filter((baseOption) => baseOption.nome !== "🔑 Administrador CRUR-BF (todas as bases)")
+                                    .filter((baseOption) => baseOption.nome !== "🔑 Administrador / CISBAF (todas as bases)")
                                     .map((baseOption) => {
                                         const ativo = selectedBases.includes(baseOption.nome);
                                         return (
