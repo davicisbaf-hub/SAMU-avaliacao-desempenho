@@ -1,15 +1,21 @@
-CREATE TABLE fichas_avaliacao (
-    id SERIAL PRIMARY KEY,
-    icon VARCHAR(50),
-    nome VARCHAR(100) NOT NULL,
-    descricao VARCHAR(255),
-    criterios INTEGER NOT NULL,
-    tags TEXT[] DEFAULT '{}',
-    link VARCHAR(100) NOT NULL,
-    ordem INTEGER DEFAULT 0,
-    ativo BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
+-- public.fichas_avaliacao definition
+-- Drop table
+-- DROP TABLE public.fichas_avaliacao;
+
+create table public.fichas_avaliacao (
+	id serial4 not null,
+	icon varchar(50) null,
+	nome varchar(100) not null,
+	descricao varchar(255) null,
+	criterios int4 not null,
+	tags _text default '{}'::text[] null,
+	link varchar(100) not null,
+	ordem int4 default 0 null,
+	ativo bool default true null,
+	created_at timestamp default now() null,
+	constraint fichas_avaliacao_pkey primary key (id)
 );
+
 INSERT INTO public.fichas_avaliacao (icon,nome,descricao,criterios,tags,link,ordem,ativo,created_at) VALUES
 	 ('🚑','Condutor','15 critérios de avaliação',15,'{Técnico,Comportamental,Processo}','/avaliacao/condutor-socorrista',1,true,'2026-06-17 09:02:37.183076'),
 	 ('💉','Técnico de Enfermagem','14 critérios de avaliação',14,'{Técnico,Comportamental,Processo}','/avaliacao/tecnico-enfermagem',2,true,'2026-06-17 09:02:37.183076'),

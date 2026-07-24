@@ -35,20 +35,29 @@ interface Props {
 }
 
 export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
-  const { user } = useUserSession();
+  const { user, selectedBases } = useUserSession();
   const { authFetch } = useAuthFetch();
   const [kpis, setKpis] = useState<KPIData[]>([]);
   const [avaliacoesFull, setAvaliacoesFull] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [tiposFiltrados, setTiposFiltrados] = useState<Set<string>>(new Set([`${user?.funcao}`, "Avaliação Par"]));
   const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+  const baseFilter = selectedBases.length > 0
+    ? selectedBases
+    : isAdminGlobal
+      ? []
+      : user?.base
+        ? [user.base]
+        : [];
 
   useEffect(() => {
     async function carregarKPIs() {
       try {
         setCarregando(true);
 
-        const url = `/api/kpis/avaliacoes-por-categoria?base=${encodeURIComponent(user?.base ?? "")}`;
+        const url = baseFilter.length
+          ? `/api/kpis/avaliacoes-por-categoria?base=${encodeURIComponent(baseFilter.join(","))}`
+          : "/api/kpis/avaliacoes-por-categoria";
 
         const res = await authFetch(url);
         const dados = await res.json();
@@ -81,12 +90,14 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
 
     carregarKPIs();
 
-  }, [user?.base]);
+  }, [baseFilter.join(",")]);
 
   useEffect(() => {
     async function carregarAvaliacoes() {
       try {
-        const url = `/api/avaliacoes?base=${encodeURIComponent(user?.base ?? "")}`;
+        const url = baseFilter.length
+          ? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
+          : "/api/avaliacoes";
         const res = await authFetch(url);
         const data = await res.json();
         setAvaliacoesFull(Array.isArray(data) ? data : []);
@@ -96,7 +107,7 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
       }
     }
     carregarAvaliacoes();
-  }, [user?.base]);
+  }, [baseFilter.join(",")]);
 
   const tiposDisponiveis = isAdminGlobal
   ? Array.from(new Set(kpis.map(k => k.tipo_avaliacao)))

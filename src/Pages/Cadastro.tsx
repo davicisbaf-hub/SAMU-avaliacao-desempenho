@@ -67,7 +67,15 @@ type InfoUsuario = {
 };
 
 export default function CadastroPage() {
-    const { user } = useUserSession();
+    const { user, selectedBases } = useUserSession();
+    const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+    const baseFilter = selectedBases.length > 0
+        ? selectedBases
+        : isAdminGlobal
+            ? []
+            : user?.base
+                ? [user.base]
+                : [];
 
     const [bases, setBases] = useState<Base[]>([]);
     const [baseSelecionada, setBaseSelecionada] = useState<Base | null>(null);
@@ -89,11 +97,10 @@ export default function CadastroPage() {
     const [carregandoInfo, setCarregandoInfo] = useState(false);
     const [funcaoSelecionada, setFuncaoSelecionada] = useState<string | null>(null);
 
-    const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
 
     const usuariosFiltrados = usuarios
         .filter((u) =>
-            isAdminGlobal ? true : u.base === user?.base
+            isAdminGlobal ? (baseFilter.length === 0 ? true : baseFilter.includes(u.base)) : u.base === user?.base
         )
         .filter((u) =>
             baseSelecionada ? u.base === baseSelecionada.nome : true

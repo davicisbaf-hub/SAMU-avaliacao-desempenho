@@ -1,7 +1,13 @@
-CREATE TABLE bases (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL UNIQUE,
-    cor VARCHAR(20) NOT NULL
+-- public.bases definition
+-- Drop table
+-- DROP TABLE public.bases;
+
+create table public.bases (
+	id serial4 not null,
+	nome varchar(100) not null,
+	cor varchar(20) not null,
+	constraint bases_nome_key unique (nome),
+	constraint bases_pkey primary key (id)
 );
 
 

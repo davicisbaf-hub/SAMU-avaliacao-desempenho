@@ -1,13 +1,20 @@
-CREATE TABLE frequencia_avaliacao (
-    id SERIAL PRIMARY KEY,
-    tipo_avaliacao VARCHAR(50) NOT NULL UNIQUE,
-    dia INTEGER NOT NULL DEFAULT 0,
-    semana INTEGER NOT NULL DEFAULT 0,
-    mes INTEGER NOT NULL DEFAULT 0,
-    ano INTEGER NOT NULL DEFAULT 0,
-    ativo BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
+-- public.frequencia_avaliacao definition
+-- Drop table
+-- DROP TABLE public.frequencia_avaliacao;
+
+create table public.frequencia_avaliacao (
+	id serial4 not null,
+	tipo_avaliacao varchar(50) not null,
+	dia int4 default 0 not null,
+	semana int4 default 0 not null,
+	mes int4 default 0 not null,
+	ano int4 default 0 not null,
+	ativo bool default true null,
+	created_at timestamp default now() null,
+	constraint frequencia_avaliacao_pkey primary key (id),
+	constraint frequencia_avaliacao_tipo_avaliacao_key unique (tipo_avaliacao)
 );
+
 
 INSERT INTO frequencia_avaliacao (tipo_avaliacao, dia) VALUES ('autoavaliacao', 1);
 INSERT INTO frequencia_avaliacao (tipo_avaliacao, dia) VALUES ('Liderado > Lider', 1);

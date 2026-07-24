@@ -1,9 +1,15 @@
-CREATE TABLE escala_likert (
-    nota INTEGER PRIMARY KEY,
-    titulo VARCHAR(100) NOT NULL,
-    descricao TEXT NOT NULL,
-    cor VARCHAR(20) NOT NULL
+-- public.escala_likert definition
+-- Drop table
+-- DROP TABLE public.escala_likert;
+
+create table public.escala_likert (
+	nota int4 not null,
+	titulo varchar(100) not null,
+	descricao text not null,
+	cor varchar(20) not null,
+	constraint escala_likert_pkey primary key (nota)
 );
+
 
 INSERT INTO escala_likert
 (nota, titulo, descricao, cor)

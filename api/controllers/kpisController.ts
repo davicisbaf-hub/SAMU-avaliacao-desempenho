@@ -3,10 +3,15 @@ import pool from "../pool";
 
 export async function avaliacoesPorCategoria(req: Request, res: Response) {
   try {
-    const { base } = req.query as { base?: string };
+    const { base } = req.query as { base?: string | string[] };
+    const bases: string[] = Array.isArray(base)
+      ? base
+      : base
+        ? base.split(",").map((value) => value.trim()).filter(Boolean)
+        : [];
     const params: string[] = [];
-    const whereClause = base ? `AND avaliado.base = $1` : "";
-    if (base) params.push(base);
+    const whereClause = bases.length ? `AND avaliado.base = ANY($1)` : "";
+    if (bases.length) params.push(bases);
 
     const { rows } = await pool.query(`
       SELECT
@@ -42,6 +47,16 @@ export async function avaliacoesPorCategoria(req: Request, res: Response) {
 
 export async function avaliacoesPorProfissional(req: Request, res: Response) {
   try {
+    const { base } = req.query as { base?: string | string[] };
+    const bases: string[] = Array.isArray(base)
+      ? base
+      : base
+        ? base.split(",").map((value) => value.trim()).filter(Boolean)
+        : [];
+    const params: string[] = [];
+    const whereClause = bases.length ? `AND avaliado.base = ANY($1)` : "";
+    if (bases.length) params.push(bases);
+
     const { rows } = await pool.query(`
       SELECT
         avaliado.nome,
@@ -54,9 +69,11 @@ export async function avaliacoesPorProfissional(req: Request, res: Response) {
         )::NUMERIC, 2) as media_geral
       FROM avaliacoes a
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
+      WHERE 1=1
+      ${whereClause}
       GROUP BY avaliado.id, avaliado.nome, avaliado.funcao, a.tipo_avaliacao
       ORDER BY a.tipo_avaliacao, avaliado.funcao
-    `);
+    `, params);
     res.json(rows);
   } catch (error: any) {
     console.error(error);

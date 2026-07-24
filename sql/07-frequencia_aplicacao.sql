@@ -1,14 +1,19 @@
-CREATE TABLE frequencia_aplicacao (
-    id SERIAL PRIMARY KEY,
-    icon VARCHAR(50),
-    frequencia VARCHAR(50) NOT NULL,
-    instrumento_acao TEXT NOT NULL,
-    responsavel VARCHAR(255) NOT NULL,
-    ordem INTEGER NOT NULL,
-    ativo BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
+-- public.frequencia_aplicacao definition
+-- Drop table
+-- DROP TABLE public.frequencia_aplicacao;
+
+create table public.frequencia_aplicacao (
+	id serial4 not null,
+	icon varchar(50) null,
+	frequencia varchar(50) not null,
+	instrumento_acao text not null,
+	responsavel varchar(255) not null,
+	ordem int4 not null,
+	ativo bool default true null,
+	created_at timestamp default now() null,
+	constraint frequencia_aplicacao_pkey primary key (id)
 );
-    
+
     
 INSERT INTO frequencia_aplicacao (
     icon,

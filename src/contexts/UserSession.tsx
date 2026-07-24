@@ -25,6 +25,8 @@ type User = {
 type UserSessionType = {
   user: User | null;
   token?: string | null;
+  selectedBases: string[];
+  setSelectedBases: (bases: string[]) => void;
   login: (user: User) => void;
   logout: () => void;
   isLoading: boolean;
@@ -34,6 +36,7 @@ const UserSession = createContext<UserSessionType | null>(null);
 
 export function UserSessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [selectedBases, setSelectedBases] = useState<string[]>([]);
   const [token, setToken] = useState<string | null>(null); // token is kept server-side as HttpOnly cookie
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,17 +49,26 @@ export function UserSessionProvider({ children }: { children: ReactNode }) {
         if (res.ok) {
           const userData = await res.json();
           setUser(userData);
-        } else {
+            setSelectedBases(
+              userData.perfil === "Administrador / CISBAF"
+                ? []
+                : userData.base
+                ? [userData.base]
+                : []
+            );
+          } else {
+            setUser(null);
+            setSelectedBases([]);
+            setToken(null);
+          }
+        } catch (error) {
+          console.error("Erro ao inicializar sessão:", error);
           setUser(null);
+          setSelectedBases([]);
           setToken(null);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error("Erro ao inicializar sessão:", error);
-        setUser(null);
-        setToken(null);
-      } finally {
-        setIsLoading(false);
-      }
     }
 
     inicializar();
@@ -65,17 +77,25 @@ export function UserSessionProvider({ children }: { children: ReactNode }) {
   const login = (userData: User) => {
     // server sets HttpOnly cookie; just store user in context
     setUser(userData);
+    setSelectedBases(
+      userData.perfil === "Administrador / CISBAF"
+        ? []
+        : userData.base
+        ? [userData.base]
+        : []
+    );
   };
 
   const logout = () => {
     setUser(null);
+    setSelectedBases([]);
     setToken(null);
     // request server to clear cookie
     fetch("/api/logout", { method: "POST", credentials: "include" }).catch(() => {});
   };
 
   return (
-    <UserSession.Provider value={{ user, token, login, logout, isLoading }}>
+    <UserSession.Provider value={{ user, token, selectedBases, setSelectedBases, login, logout, isLoading }}>
       {children}
     </UserSession.Provider>
   );

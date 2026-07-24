@@ -36,10 +36,15 @@ async function determinarNivel(criadoEm: Date): Promise<string> {
 
 export async function listar(req: Request, res: Response) {
   try {
-    const { base } = req.query as { base?: string };
-    const params: string[] = [];
-    const whereClause = base ? `WHERE avaliado.base = $1` : "";
-    if (base) params.push(base);
+    const { base } = req.query as { base?: string | string[] };
+    const bases = Array.isArray(base)
+      ? base
+      : base
+      ? base.split(",").map((b) => b.trim()).filter(Boolean)
+      : [];
+    const params: any[] = [];
+    const whereClause = bases.length ? `WHERE avaliado.base = ANY($1)` : "";
+    if (bases.length) params.push(bases);
 
     const { rows } = await pool.query(`
       SELECT

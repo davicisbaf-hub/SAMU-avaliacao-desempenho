@@ -89,10 +89,17 @@ export default function BaixarFicha() {
 	
 	const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 	
-	const { user } = useUserSession();
+	const { user, selectedBases } = useUserSession();
 	const userBase = user?.base;
 	const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
 	const isAdmin = user?.perfil === "Coordenador de Base";
+	const baseFilter = selectedBases.length > 0
+		? selectedBases
+		: isAdminGlobal
+			? []
+			: userBase
+				? [userBase]
+				: [];
 	const { authFetch } = useAuthFetch();
 	
 
@@ -116,11 +123,15 @@ export default function BaixarFicha() {
 	});
 
 	useEffect(() => {
-		authFetch("/api/avaliacoes")
+		const url = baseFilter.length
+			? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
+			: "/api/avaliacoes";
+
+		authFetch(url)
 			.then((res) => res.json())
 			.then(setAvaliacoes)
 			.catch(console.error);
-	}, []);
+	}, [baseFilter.join(",")]);
 
 	useEffect(() => {
 		Promise.all([
@@ -164,17 +175,15 @@ export default function BaixarFicha() {
 		const ehAutoavaliacao =
 			avaliacao.avaliador_nome === avaliacao.avaliado_nome;
 
-		// Administrador global - vê tudo, de todas as bases
+		// Administrador global - vê tudo, ou apenas as bases selecionadas
 		if (isAdminGlobal) {
-			return true;
+			if (!baseFilter.length) return true;
+			return baseFilter.includes(avaliacao.avaliado_base);
 		}
 
 		// Administrador da base
 		if (isAdmin) {
-			const usuarioAvaliado = usuarios.find(
-				u => u.nome === avaliacao.avaliado_nome
-			);
-			return usuarioAvaliado?.base === userBase;
+			return avaliacao.avaliado_base === userBase;
 		}
 
 		// Usuário comum
@@ -453,11 +462,7 @@ export default function BaixarFicha() {
 											pontosMelhorar={avaliacaoSelecionada.pontos_melhorar || ""}
 											planoAcao={avaliacaoSelecionada.plano_acao || ""}
 											userName={(avaliacaoSelecionada.avaliado_nome + " - " + avaliacaoSelecionada.avaliado_funcao) }
-											userBase={
-												usuarios.find(
-													u => u.base === avaliacaoSelecionada.avaliado_base
-												)?.base || ""
-											}
+											userBase={avaliacaoSelecionada.avaliado_base}
 											readOnly={true}
 											criado_em={avaliacaoSelecionada.criado_em}
 										/>
@@ -497,9 +502,7 @@ export default function BaixarFicha() {
 									pontosMelhorar={avaliacaoParaPdf.pontos_melhorar || ""}
 									planoAcao={avaliacaoParaPdf.plano_acao || ""}
 									userName={avaliacaoParaPdf.avaliado_nome}
-									userBase={
-										usuarios.find(u => u.nome === avaliacaoParaPdf.avaliado_nome)?.base || ""
-									}
+									userBase={avaliacaoParaPdf.avaliado_base}
 									readOnly={true}
 									criado_em={avaliacaoParaPdf.criado_em}
 								/>

@@ -1,24 +1,22 @@
-CREATE TABLE avaliacoes (
-    id SERIAL PRIMARY KEY,
+-- public.avaliacoes definition
+-- Drop table
+-- DROP TABLE public.avaliacoes;
 
-    avaliador_id INTEGER NOT NULL,
-    avaliado_id INTEGER NOT NULL,
-    modalidade TEXT,
-
-    tipo_avaliacao VARCHAR(100) NOT NULL,
-    resultado JSONB NOT NULL,
-
-    observacoes_gerais TEXT,
-    pontos_melhorar TEXT,
-    plano_acao TEXT,
-
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_avaliador
-        FOREIGN KEY (avaliador_id)
-        REFERENCES usuarios(id),
-
-    CONSTRAINT fk_avaliado
-        FOREIGN KEY (avaliado_id)
-        REFERENCES usuarios(id)
+create table public.avaliacoes (
+	id serial4 not null,
+	avaliador_id int4 not null,
+	avaliado_id int4 not null,
+	modalidade text null,
+	tipo_avaliacao varchar(100) not null,
+	resultado jsonb not null,
+	observacoes_gerais text null,
+	pontos_melhorar text null,
+	plano_acao text null,
+	criado_em timestamp default CURRENT_TIMESTAMP null,
+	constraint avaliacoes_pkey primary key (id)
 );
+-- public.avaliacoes foreign keys
+
+alter table public.avaliacoes add constraint fk_avaliado foreign key (avaliado_id) references public.usuarios(id);
+
+alter table public.avaliacoes add constraint fk_avaliador foreign key (avaliador_id) references public.usuarios(id);

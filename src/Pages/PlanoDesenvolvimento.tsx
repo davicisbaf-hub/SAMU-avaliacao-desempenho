@@ -83,7 +83,15 @@ export default function PlanoDesenvolvimento() {
 
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
-  const { user } = useUserSession();
+  const { user, selectedBases } = useUserSession();
+  const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+  const baseFilter = selectedBases.length > 0
+    ? selectedBases
+    : isAdminGlobal
+      ? []
+      : user?.base
+        ? [user.base]
+        : [];
 
 
   // Refs para impressão
@@ -93,33 +101,14 @@ export default function PlanoDesenvolvimento() {
   const { authFetch } = useAuthFetch();
 
   
-  const [filtroBase, setFiltroBase] = useState(user?.perfil === 'Administrador / CISBAF' ? '' : user?.base);
-
-
-  const [bases, setBases] = useState<string[]>([]);
   
-  useEffect(() => {
-    async function carregarBases() {
-      try {
-        const res = await authFetch("/api/bases");
-        const dados = await res.json();
-
-        setBases(dados.map((b: any) => b.nome));
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    carregarBases();
-  }, []);
-
   useEffect(() => {
     async function carregar() {
       try {
         setCarregando(true);
 
-        const url = filtroBase
-          ? `/api/avaliacoes?base=${encodeURIComponent(filtroBase)}`
+        const url = baseFilter.length
+          ? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
           : "/api/avaliacoes";
 
         const res = await authFetch(url);
@@ -133,7 +122,7 @@ export default function PlanoDesenvolvimento() {
     }
 
     carregar();
-  }, [filtroBase]);
+  }, [baseFilter.join(",")]);
 
   const extrairItens = (
     obj: any,
@@ -512,20 +501,17 @@ export default function PlanoDesenvolvimento() {
 
             <div className="flex flex-col">
               <label className="text-xs text-gray-500 mb-1">Base</label>
-              <select
-                disabled={user?.perfil !== 'Administrador / CISBAF'}
-                value={filtroBase}
-                onChange={(e) => setFiltroBase(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm bg-white"
-              >
-                <option value="">Todas</option>
-
-                {bases.map((base) => (
-                  <option key={base} value={base}>
-                    {base}
-                  </option>
-                ))}
-              </select>
+              <div className="border rounded-md px-3 py-2 text-sm bg-white min-h-[42px] flex flex-wrap gap-1 items-center">
+                {baseFilter.length > 0 ? (
+                  baseFilter.map((base) => (
+                    <span key={base} className="px-2 py-1 rounded-full bg-[#cd0048]/10 text-[#cd0048] text-xs">
+                      {base}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-500">Todas as bases</span>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col flex-1 min-w-[200px]">

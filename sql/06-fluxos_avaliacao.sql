@@ -1,10 +1,15 @@
-CREATE TABLE fluxos_avaliacao (
-    id SERIAL PRIMARY KEY,
-    titulo VARCHAR(100) NOT NULL,
-    descricao TEXT NOT NULL,
-    ordem INTEGER NOT NULL,
-    ativo BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
+-- public.fluxos_avaliacao definition
+-- Drop table
+-- DROP TABLE public.fluxos_avaliacao;
+
+create table public.fluxos_avaliacao (
+	id serial4 not null,
+	titulo varchar(100) not null,
+	descricao text not null,
+	ordem int4 not null,
+	ativo bool default true null,
+	created_at timestamp default now() null,
+	constraint fluxos_avaliacao_pkey primary key (id)
 );
 
 

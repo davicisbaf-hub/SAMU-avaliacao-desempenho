@@ -1,10 +1,16 @@
-CREATE TABLE tipo_avaliacao (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL,
-    descricao VARCHAR(150) NOT NULL,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- public.tipo_avaliacao definition
+-- Drop table
+-- DROP TABLE public.tipo_avaliacao;
+
+create table public.tipo_avaliacao (
+	id serial4 not null,
+	nome varchar(150) not null,
+	descricao varchar(150) not null,
+	ativo bool default true not null,
+	criado_em timestamp default CURRENT_TIMESTAMP null,
+	constraint tipo_avaliacao_pkey primary key (id)
 );
+
 
 INSERT INTO tipo_avaliacao (nome, descricao)
 VALUES

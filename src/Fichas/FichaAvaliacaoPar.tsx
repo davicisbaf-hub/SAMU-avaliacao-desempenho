@@ -55,7 +55,15 @@ type Base = {
 
 export default function FichaAvaliacaoPar() {
 	const [bases, setBases] = useState<Base[]>([]);
-	const { user } = useUserSession();
+	const { user, selectedBases } = useUserSession();
+	const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+	const baseFilter = selectedBases.length > 0
+		? selectedBases
+		: isAdminGlobal
+			? []
+			: user?.base
+				? [user.base]
+				: [];
 
 	const [tipoAvaliacao, setTipoAvaliacao] = useState(`Avaliação Par`);
 	const [criterios, setCriterios] = useState<Criterios[]>([]);
@@ -88,7 +96,10 @@ export default function FichaAvaliacaoPar() {
 			const res = await authFetch("/api/usuarios");
 			const data = await res.json();
 			setUsuarios(
-			data.filter((u: any) => u.id !== user?.id && u.base === user?.base)
+			data.filter((u: any) =>
+				u.id !== user?.id &&
+				(baseFilter.length === 0 ? true : baseFilter.includes(u.base))
+			)
 			);
 		}
 		carregarUsuarios();

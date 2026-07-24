@@ -27,13 +27,10 @@ type Base = {
 export default function Nav() {
 
     const navigate = useNavigate();
-    const { logout } = useUserSession();
+    const { logout, selectedBases, setSelectedBases, user, isLoading } = useUserSession();
     const [fichas, setFichas] = useState<Ficha[]>([]);
-    const [senhaMe, setSenhaMe] = useState()
-    const [baseSelecionada, setBaseSelecionada] = useState("");
-    const [base, setBase] = useState<Base[]>([]);
-    const { login, user, isLoading } = useUserSession();
-
+    const [bases, setBases] = useState<Base[]>([]);
+const [filtroAberto, setFiltroAberto] = useState(false);
     useEffect(() => {
     if (!user && !isLoading) {
       navigate("/login");
@@ -76,61 +73,6 @@ export default function Nav() {
             .then((data) => setFichas(data));
     }, []);
 
-    async function getSenha() {
-        const response = await fetch("/api/me", {
-            credentials: "include",
-        });
-
-        if (!response.ok) {
-            return undefined;
-        }
-
-        const data = await response.json();
-        return data.senha;
-    }
-
-    const handleLogin = async (baseNome?: string) => {
-        const base = baseNome || baseSelecionada;
-
-        if (!base) {
-            console.log("Selecione uma base");
-            return;
-        }
-
-        const senha = await getSenha();
-
-        if (!senha) {
-            navigate("/login");
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/login", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    senha,
-                    base,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error("Erro ao fazer login", data);
-                return;
-            }
-
-            login(data);
-            navigate("/");
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
   const carregar = async (url: string, setter: Function) => {
       try {
           const res = await fetch(url);
@@ -142,7 +84,7 @@ export default function Nav() {
   };
 
   useEffect(() => {
-    carregar("/api/bases", setBase);
+    carregar("/api/bases", setBases);
   }, []);
 
 
@@ -161,29 +103,88 @@ export default function Nav() {
                     </div>
                 </div>
 
-                {user?.perfil === "Administrador / CISBAF" && (
-                    <div className="px-4 py-3 border-b border-sidebar-border">
-                        <div className="space-y-4">
-                            <div className="space-y-2 text-left">
-                                <select
-                                value={baseSelecionada}
-                                onChange={(e) => {
-                                    setBaseSelecionada(e.target.value);
-                                    // Login automático ao escolher
-                                    handleLogin(e.target.value);
-                                }}
-                                className="space-y-2 inline-flex items-center gap-1.5 bg-[#cd0048]/30  text-xs  p-2 rounded-full font-medium"
-                                >
-                                <option value="">{user?.base}</option>
-                                
-                                    {base.map((base) => (
-                                    <option key={base.id} value={base.nome} className="text-black font-bold">
-                                        {base.nome}
-                                    </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+               {user?.perfil === "Administrador / CISBAF" && (
+                    <div className="px-4 py-2.5 border-b border-sidebar-border">
+                        <button
+                            type="button"
+                            onClick={() => setFiltroAberto((prev) => !prev)}
+                            className="w-full flex items-center justify-between group"
+                        >
+                            <p className="text-[11px] uppercase tracking-wider font-semibold text-[#cbd5e1] flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                Filtrar bases
+                                {selectedBases.length > 0 && (
+                                    <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#cd0048] text-white text-[9px] leading-none">
+                                        {selectedBases.length}
+                                    </span>
+                                )}
+                            </p>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className={`text-[#cbd5e1] transition-transform duration-200 group-hover:text-white ${
+                                    filtroAberto ? "rotate-180" : ""
+                                }`}
+                            >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        <div
+    className={`overflow-hidden transition-all duration-200 ease-in-out ${
+        filtroAberto ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0"
+    }`}
+>
+    <div className="flex flex-wrap gap-1.5 pb-1 max-h-28 overflow-y-auto custom-scrollbar pr-1">
+        <button
+            type="button"
+            onClick={() => setSelectedBases([])}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all duration-150 ${
+                selectedBases.length === 0
+                    ? "bg-[#cd0048] border-[#cd0048] text-white shadow-sm shadow-[#cd0048]/30"
+                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20 hover:text-white"
+            }`}
+        >
+            Todas
+        </button>
+        {bases.map((baseOption) => {
+            const ativo = selectedBases.includes(baseOption.nome);
+            return (
+                <button
+                    key={baseOption.id}
+                    type="button"
+                    onClick={() => {
+                        if (ativo) {
+                            setSelectedBases(
+                                selectedBases.filter((name) => name !== baseOption.nome)
+                            );
+                        } else {
+                            setSelectedBases([...selectedBases, baseOption.nome]);
+                        }
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium border transition-all duration-150 ${
+                        ativo
+                            ? "bg-[#cd0048] border-[#cd0048] text-white shadow-sm shadow-[#cd0048]/30"
+                            : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20 hover:text-white"
+                    }`}
+                >
+                    <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: baseOption.cor || "#cbd5e1" }}
+                    />
+                    {baseOption.nome}
+                </button>
+            );
+        })}
+    </div>
+</div>
                     </div>
                 )}
                 

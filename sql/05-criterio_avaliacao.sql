@@ -1,16 +1,21 @@
-CREATE TABLE public.criterios_avaliacao (
-	id serial4 NOT NULL,
-	tipo varchar(50) NOT NULL,
-	categoria varchar(100) NOT NULL,
-	codigo UUID DEFAULT gen_random_uuid (),
-	criterio VARCHAR NOT NULL,
-	peso int4 NOT NULL,
-	indicador VARCHAR NULL,
-	ativo bool DEFAULT true NOT NULL,
-	created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-	avaliacao varchar(100) NULL,
-	CONSTRAINT criterios_avaliacao_pkey PRIMARY KEY (id)
+-- public.criterios_avaliacao definition
+-- Drop table
+-- DROP TABLE public.criterios_avaliacao;
+
+create table public.criterios_avaliacao (
+	id serial4 not null,
+	tipo varchar(50) not null,
+	categoria varchar(100) not null,
+	criterio varchar not null,
+	peso int4 not null,
+	indicador varchar null,
+	ativo bool default true not null,
+	created_at timestamp default CURRENT_TIMESTAMP null,
+	avaliacao varchar(100) null,
+	codigo uuid default gen_random_uuid() null,
+	constraint criterios_avaliacao_pkey primary key (id)
 );
+
 
 INSERT INTO public.criterios_avaliacao (tipo,categoria,criterio,peso,indicador,ativo,created_at,avaliacao,codigo) VALUES
 	 ('Técnico de Enfermagem','EIXO TÉCNICO','Participa ativamente do trabalho em equipe, recebe e transmite informações de forma padronizada (SBAR)Comunicação SBAR / trabalho em equipe?',1,'A comunicação SBAR é uma ferramenta padronizada de transferência de informações essencial para a segurança do paciente e para o trabalho em equipe',true,'2026-06-30 13:17:59.727302','autoavaliacao','b711af17-c67d-4373-9149-3c962539cc3d'::uuid),
