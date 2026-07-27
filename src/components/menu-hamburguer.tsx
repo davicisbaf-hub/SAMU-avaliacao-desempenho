@@ -13,7 +13,8 @@ import {
     HomeIcon,
     ChartPie ,
     PlusIcon,
-    MonitorCog
+    MonitorCog,
+    Download 
 } from "lucide-react"
 import { Button } from "../components/ui/button"
 
@@ -101,6 +102,14 @@ export default function MenuHamburguer() {
                                             <span>Painel de KPIs</span>
                                         </NavLink>
                                     </CommandItem>
+
+                                    <CommandItem>
+                                        <Download   />
+                                        <NavLink to="/baixarFicha" onClick={() => setOpen(false)}>
+                                            <span>Baixar Fichas (PDF)</span>
+                                        </NavLink>
+                                    </CommandItem>
+
                                     <CommandItem>
                                         <FileTextIcon />
                                         <NavLink to="/ajuda" onClick={() => setOpen(false)}>
@@ -147,7 +156,7 @@ export default function MenuHamburguer() {
                                 <CommandSeparator />
                                 <CommandGroup heading="Fichas">
                                     {fichasVisiveis.map((ficha) => (
-                                        <CommandItem key={ficha.nome} className="flex">
+                                        <CommandItem key={ficha.nome}>
                                             <NavLink to={ficha.link} onClick={() => setOpen(false)}>
                                                 <span>{ficha.icon} {ficha.nome}</span>
                                             </NavLink>
