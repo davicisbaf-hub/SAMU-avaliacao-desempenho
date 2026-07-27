@@ -10,12 +10,14 @@ import {
   atualizar,
   inativar,
   carregarTipoAvaliacao,
+  listrarCriterios
 } from "../controllers/criteriosController.js";
 
 const router = Router();
 
 // Rotas GET (ordem importa - coloque as mais específicas primeiro)
 router.get("/criterios-avaliacao/avaliacao", carregarTipoAvaliacao);
+router.get("/criterios-avaliacao/todos", listrarCriterios);
 router.get("/tipos-avaliacao", listarTipos);
 router.get("/criterios-avaliacao/:tipo/:avaliacao", listarPorTipoEAvaliacao);
 router.get("/criterios-avaliacao-lider/:tipo", listarLider);

@@ -3,6 +3,8 @@ import Nav from "../components/Nav";
 import { useEffect, useState } from "react";
 import { useAuthFetch } from "../hooks/useAuthFetch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import ExcelJS from "exceljs";
+
 
 import {
   Menubar,
@@ -51,7 +53,7 @@ type Frequencia = {
 export default function ConfiguracaoPage() {
   const [tipos, setTipos] = useState<Tipo[]>([]);
   const [tipoSelecionado, setTipoSelecionado] = useState("");
-  const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState("autoavaliacao");
+  const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState("");
   const [selecionados, setSelecionados] = useState<number[]>([]);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
@@ -165,7 +167,7 @@ export default function ConfiguracaoPage() {
     setCriterio(item.criterio);
     setPeso(item.peso);
     setIndicador(item.indicador || "");
-    setAvaliacaoSelecionada(item.avaliacao || "autoavaliacao");
+    setAvaliacaoSelecionada(item.avaliacao || "");
     setModalAberto(true);
   }
 
@@ -176,7 +178,7 @@ export default function ConfiguracaoPage() {
     setCriterio("");
     setPeso(1);
     setIndicador("");
-    setAvaliacaoSelecionada("autoavaliacao");
+    setAvaliacaoSelecionada("");
     setModalAberto(false);
   }
 
@@ -215,7 +217,7 @@ export default function ConfiguracaoPage() {
     setPeso(1);
     setIndicador("");
     setTipoSelecionado("");
-    setAvaliacaoSelecionada("autoavaliacao");
+    setAvaliacaoSelecionada("");
     setModalAberto(true);
   }
 
@@ -264,9 +266,61 @@ export default function ConfiguracaoPage() {
     }
   }
 
+async function exportarCriteriosExcel(criterios: any[]) {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Critérios");
+
+    worksheet.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Tipo", key: "tipo", width: 20 },
+      { header: "Categoria", key: "categoria", width: 20 },
+      { header: "Critério", key: "criterio", width: 60 },
+      { header: "Peso", key: "peso", width: 10 },
+      { header: "Indicador", key: "indicador", width: 50 },
+      { header: "Ativo", key: "ativo", width: 10 },
+      { header: "Criado em", key: "created_at", width: 20 },
+      { header: "Avaliação", key: "avaliacao", width: 20 },
+      { header: "Código", key: "codigo", width: 40 },
+    ];
+
+    criterios.forEach((c) => {
+      worksheet.addRow({
+        id: c.id,
+        tipo: c.tipo,
+        categoria: c.categoria,
+        criterio: c.criterio,
+        peso: c.peso,
+        indicador: c.indicador ?? "",
+        ativo: c.ativo ? "Sim" : "Não",
+        created_at: c.created_at
+          ? new Date(c.created_at).toLocaleDateString("pt-BR")
+          : "",
+        avaliacao: c.avaliacao,
+        codigo: c.codigo,
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `criterios_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   async function carregarCriterios() {
     try {
-      const url = `/api/criterios-avaliacao/${tipoSelecionado}/${avaliacaoSelecionada}`;
+      const url =
+        tipoSelecionado || avaliacaoSelecionada
+          ? `/api/criterios-avaliacao/${tipoSelecionado}/${avaliacaoSelecionada}`
+          : `/api/criterios-avaliacao/todos`;
+
       const res = await authFetch(url);
       const data = await res.json();
       setCriterios(Array.isArray(data) ? data : []);
@@ -274,6 +328,13 @@ export default function ConfiguracaoPage() {
       console.error("Erro ao carregar critérios:", error);
       setCriterios([]);
     }
+  }
+
+  useEffect(() => {
+    carregarCriterios();
+  }, [tipoSelecionado, avaliacaoSelecionada]);
+  function handleExportarCriterios() {
+    exportarCriteriosExcel(criterios);
   }
 
   return (
@@ -355,6 +416,7 @@ export default function ConfiguracaoPage() {
                       onChange={(e) => setAvaliacaoSelecionada(e.target.value)}
                       className="w-full border rounded-lg px-3 py-2 mt-1"
                     >
+                      <option value="">Selecione o tipo</option>
                       {tipoAvaliacao.map((t) => (
                         <option key={t.id} value={t.nome}>
                           {t.descricao}
@@ -370,16 +432,22 @@ export default function ConfiguracaoPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={novoCriterio}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                      className="px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-700 transition"
                     >
                       Novo Critério
                     </button>
                     <button
                       onClick={inativarSelecionados}
                       disabled={selecionados.length === 0}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50 hover:bg-red-700 transition"
+                      className="px-4 py-2 bg-rose-600 text-white rounded-lg disabled:opacity-50 hover:bg-rose-700 transition"
                     >
                       Inativar ({selecionados.length})
+                    </button>
+                    <button
+                      onClick={handleExportarCriterios}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
+                    >
+                      Baixar Excel
                     </button>
                   </div>
                 </div>
@@ -704,6 +772,7 @@ export default function ConfiguracaoPage() {
                   onChange={(e) => setAvaliacaoSelecionada(e.target.value)}
                   className="w-full border rounded-lg px-3 py-2 mt-1"
                 >
+                  <option value="">Selecione o tipo</option>
                   {tipoAvaliacao.map((t) => (
                     <option key={t.id} value={t.nome}>
                       {t.descricao}

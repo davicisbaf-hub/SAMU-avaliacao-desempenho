@@ -172,3 +172,19 @@ export async function carregarTipoAvaliacao(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function listrarCriterios(req: Request, res: Response){
+  try {
+    const { rows } = await pool.query(`
+      SELECT * FROM criterios_avaliacao
+      WHERE ativo = true
+      ORDER BY tipo, avaliacao 
+
+    `);
+
+    res.json(rows);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ erro: error.message });
+  }
+}
