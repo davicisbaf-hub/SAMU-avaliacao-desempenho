@@ -24,4 +24,4 @@ INSERT INTO public.bases (nome,cor) VALUES
 	 ('Paracambi','#10b981'),
 	 ('Magé','#f43f5e'),
 	 ('Itaguaí','#0ea5e9'),
-	 ('🔑 Administrador / CISBAF (todas as bases)','#86090D');
+	 ('Todas as bases','#86090D');

@@ -5,11 +5,11 @@ info:
     API REST do sistema de avaliação de desempenho do SAMU (Serviço de Atendimento Móvel de Urgência).
 
     ## Autenticação
-    A maioria dos endpoints requer um token JWT obtido via `POST /login`.
-    Envie o token no header `Authorization: Bearer <token>`.
+    A autenticação é realizada via **cookie** contendo o token JWT, obtido através do endpoint `POST /login`.
+    O cookie é automaticamente enviado pelo navegador em todas as requisições subsequentes.
 
     O token expira em **8 horas**.
-  version: 1.0.0
+  version: 2.0.0
 
 servers:
   - url: http://localhost:3001/api/
@@ -38,10 +38,11 @@ tags:
 # ---------------------------------------------------------------------------
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: Cookie contendo o token JWT obtido via login.
 
   # -------------------------------------------------------------------------
   # SCHEMAS
@@ -55,7 +56,7 @@ components:
       properties:
         cpf:
           type: string
-          description: CPF do usuário (sem máscara), usado como credencial de login.
+          description: CPF do usuário (sem máscara), usado como credencial de login. Validado no backend.
           example: "12345678900"
         base:
           type: string
@@ -81,6 +82,7 @@ components:
       properties:
         token:
           type: string
+          description: Token JWT (também enviado como cookie)
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         id:
           type: integer
@@ -177,6 +179,7 @@ components:
         criado_em:
           type: string
           format: date-time
+          description: Data de criação no formato ISO 8601 (UTC)
           example: "2024-01-15T10:30:00Z"
         par:
           type: array
@@ -329,6 +332,7 @@ components:
         criado_em:
           type: string
           format: date-time
+          description: Data de criação no formato ISO 8601 (UTC)
           example: "2024-06-01T14:00:00Z"
 
     AvaliacaoCriada:
@@ -387,6 +391,7 @@ components:
         atualizado_em:
           type: string
           format: date-time
+          description: Data da última atualização no formato ISO 8601 (UTC)
           example: "2024-06-01T14:00:00Z"
 
     FrequenciaNivelRequest:
@@ -687,7 +692,8 @@ paths:
       tags: [Auth]
       summary: Autenticar usuário
       description: |
-        Autentica pelo `cpf`. Retorna um token JWT válido por 8 horas.
+        Autentica pelo `cpf` (válido). Retorna um token JWT válido por 8 horas, que é automaticamente
+        enviado como um cookie `token` para o cliente.
 
         Se o CPF pertencer a mais de um usuário/base e nenhuma `base` for informada,
         retorna `LoginEscolherBase` (200) com a lista de opções em vez do token - o
@@ -716,6 +722,23 @@ paths:
               example:
                 erro: "Credenciais inválidas"
 
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Encerrar sessão
+      description: Remove o cookie de autenticação, encerrando a sessão do usuário.
+      responses:
+        '200':
+          description: Logout realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout realizado com sucesso"
+
   # ==========================================================================
   # USUÁRIOS
   # ==========================================================================
@@ -724,7 +747,7 @@ paths:
       tags: [Usuários]
       summary: Listar todos os usuários ativos
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de usuários ativos ordenados por nome
@@ -745,7 +768,7 @@ paths:
       tags: [Usuários]
       summary: Cadastrar novo usuário
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -770,9 +793,9 @@ paths:
     get:
       tags: [Usuários]
       summary: Obter dados do usuário autenticado
-      description: Retorna os dados do usuário correspondente ao token JWT enviado no header `Authorization`.
+      description: Retorna os dados do usuário correspondente ao token JWT enviado via cookie.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Dados do usuário autenticado
@@ -798,7 +821,7 @@ paths:
       tags: [Usuários]
       summary: Listar usuários por base
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: base
           in: path
@@ -821,7 +844,7 @@ paths:
       tags: [Usuários]
       summary: Atualizar dados de um usuário
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -853,7 +876,7 @@ paths:
       summary: Inativar um usuário
       description: Define `ativo = false` para o usuário. Operação não destrutiva.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -883,7 +906,7 @@ paths:
       tags: [Avaliações]
       summary: Listar avaliações
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: base
           in: query
@@ -922,7 +945,7 @@ paths:
         a próxima avaliação será liberada. Níveis sem restrição configurada (todos os
         campos de intervalo zerados) não bloqueiam novas avaliações.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -1001,7 +1024,7 @@ paths:
         `modalidade` e `tipoAvaliacao` forem informados, também verifica se uma nova
         avaliação com esses parâmetros já pode ser feita (`pode_avaliar`).
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: usuarioId
           in: query
@@ -1061,7 +1084,7 @@ paths:
       tags: [Frequência]
       summary: Listar configurações de frequência por nível
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de configurações ordenadas por `dias_minimos`
@@ -1082,7 +1105,7 @@ paths:
       tags: [Frequência]
       summary: Criar novo nível de frequência
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -1116,7 +1139,7 @@ paths:
       tags: [Frequência]
       summary: Atualizar configuração de frequência
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -1155,7 +1178,7 @@ paths:
       summary: Remover (inativar) nível de frequência
       description: Não é uma exclusão física - apenas define `ativo = false`.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -1198,7 +1221,7 @@ paths:
       summary: Listar tipos de avaliação ativos
       description: Retorna os registros da tabela `tipo_avaliacao` onde `ativo = true`.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de tipos de avaliação
@@ -1214,7 +1237,7 @@ paths:
       tags: [Critérios]
       summary: Listar critérios por tipo e modalidade de avaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: tipo
           in: path
@@ -1244,7 +1267,7 @@ paths:
       tags: [Critérios]
       summary: Listar critérios - Líder avalia Liderado
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: tipo
           in: path
@@ -1267,7 +1290,7 @@ paths:
       tags: [Critérios]
       summary: Listar critérios - Liderado avalia Líder
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: tipo
           in: path
@@ -1290,7 +1313,7 @@ paths:
       tags: [Critérios]
       summary: Listar critérios - Autoavaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: tipo
           in: path
@@ -1313,7 +1336,7 @@ paths:
       tags: [Critérios]
       summary: Listar critérios - Avaliação entre pares
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: tipo
           in: path
@@ -1336,7 +1359,7 @@ paths:
       tags: [Critérios]
       summary: Listar tipos distintos de avaliação (de critérios ativos)
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de tipos distintos
@@ -1356,7 +1379,7 @@ paths:
       tags: [Critérios]
       summary: Cadastrar critério de avaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       requestBody:
         required: true
         content:
@@ -1382,7 +1405,7 @@ paths:
       tags: [Critérios]
       summary: Atualizar critério de avaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -1409,7 +1432,7 @@ paths:
       tags: [Critérios]
       summary: Inativar critério de avaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: id
           in: path
@@ -1436,7 +1459,7 @@ paths:
         Agrega os resultados de todas as avaliações agrupando por categoria de critério e tipo de avaliação.
         Retorna média ponderada, nota máxima, nota mínima e total de avaliações.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       parameters:
         - name: base
           in: query
@@ -1468,7 +1491,7 @@ paths:
       description: |
         Retorna a média geral de notas de cada profissional agrupado por função e tipo de avaliação.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: KPIs por profissional
@@ -1493,7 +1516,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar fichas de avaliação ativas
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de fichas ordenadas por `ordem`
@@ -1510,7 +1533,7 @@ paths:
       summary: Listar fichas de avaliação (via view do banco)
       description: Retorna os dados da view `vw_fichas_avaliacao`, que pode conter campos enriquecidos.
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de fichas via view
@@ -1526,7 +1549,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar frequências de aplicação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de frequências ordenadas por `ordem`
@@ -1542,7 +1565,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar fluxos de avaliação ativos
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de fluxos ordenados por `ordem`
@@ -1558,7 +1581,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar bases do SAMU
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Lista de bases ordenadas por nome
@@ -1574,7 +1597,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar escala Likert de notas
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Escala Likert ordenada por nota
@@ -1590,7 +1613,7 @@ paths:
       tags: [Auxiliares]
       summary: Listar pesos de avaliação
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Pesos ordenados por valor (decrescente)
