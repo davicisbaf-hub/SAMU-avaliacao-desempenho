@@ -320,7 +320,7 @@ export default function App() {
                 >
                     <option value="">Selecione seu acesso…</option>
                   
-                    <option value="🔑 Administrador / CISBAF (todas as bases)">
+                    <option value="Todas as bases">
                       🔑 Administrador / CISBAF (todas as bases)
                     </option>
                   {/* <optgroup label="── Bases ──">

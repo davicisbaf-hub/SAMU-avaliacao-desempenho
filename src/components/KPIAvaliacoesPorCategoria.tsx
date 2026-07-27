@@ -40,7 +40,7 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
   const [kpis, setKpis] = useState<KPIData[]>([]);
   const [avaliacoesFull, setAvaliacoesFull] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const [tiposFiltrados, setTiposFiltrados] = useState<Set<string>>(new Set([`${user?.funcao}`, "Avaliação Par"]));
+  const [tiposFiltrados, setTiposFiltrados] = useState<Set<string>>(new Set());
   const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
   const baseFilter = selectedBases.length > 0
     ? selectedBases
@@ -122,6 +122,12 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
           )
       )
     );
+
+    useEffect(() => {
+  if (tiposDisponiveis.length > 0 && tiposFiltrados.size === 0) {
+    setTiposFiltrados(new Set(tiposDisponiveis));
+  }
+}, [tiposDisponiveis.join(",")]);
   const kpisFiltrados = kpis.filter(k => tiposFiltrados.has(k.tipo_avaliacao));
 
   const handleToggleTipo = (tipo: string) => {
