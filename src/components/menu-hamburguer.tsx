@@ -1,5 +1,5 @@
 import * as React from "react"
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { Menu } from 'lucide-react';
 import { useUserSession } from "../contexts/UserSession";
 import { useEffect, useState } from "react";
@@ -36,12 +36,17 @@ type Ficha = {
 };
 
 export default function MenuHamburguer() {
+    const navigate = useNavigate();
     const [open, setOpen] = React.useState(false)
-    const { user } = useUserSession();
+    const { user, logout } = useUserSession();
     const [fichas, setFichas] = useState<Ficha[]>([]);
     const { authFetch } = useAuthFetch();
 
-    
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
     const fichasVisiveis =
         user?.perfil === "Colaborador"
             ? fichas.filter(
@@ -142,12 +147,21 @@ export default function MenuHamburguer() {
                                 <CommandSeparator />
                                 <CommandGroup heading="Fichas">
                                     {fichasVisiveis.map((ficha) => (
-                                        <CommandItem key={ficha.nome}>
+                                        <CommandItem key={ficha.nome} className="flex">
                                             <NavLink to={ficha.link} onClick={() => setOpen(false)}>
                                                 <span>{ficha.icon} {ficha.nome}</span>
                                             </NavLink>
                                         </CommandItem>
                                     ))}
+                                </CommandGroup>
+                                <CommandSeparator />
+
+                                <CommandGroup heading="Sair">
+                                    <CommandItem>
+                                        <button onClick={handleLogout}>
+                                                <span>Sair</span>
+                                        </button>
+                                    </CommandItem>
                                 </CommandGroup>
                             </CommandList>
                         </Command>
