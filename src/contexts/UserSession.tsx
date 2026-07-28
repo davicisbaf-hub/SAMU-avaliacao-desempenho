@@ -20,6 +20,7 @@ type User = {
   ativo: boolean;
   par?: ParItem[] | string;
   criadoEm: string;
+  matricula:string;
 };
 
 type UserSessionType = {

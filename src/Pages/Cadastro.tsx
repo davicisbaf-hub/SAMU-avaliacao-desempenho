@@ -680,8 +680,15 @@ export default function CadastroPage() {
                                 <option value="Colaborador">Colaborador</option>
                                 {user?.perfil === "Administrador / CISBAF" && (<option value="Administrador / CISBAF">Administrador / CISBAF</option>)}
                             </select>
-                            <label className="text-xs font-semibold">Par</label>
 
+                            <label className="text-xs font-semibold">Matricula</label>
+                            <input
+                                value={matricula}
+                                onChange={(e) => setMatricula(e.target.value)}
+                                className="w-full border rounded-lg px-3 py-2"
+                            />
+
+                            <label className="text-xs font-semibold">Par</label>
                             <MultiSelectPar
                                 usuarios={usuarios.map(({ id, nome, funcao }) => ({ id, nome, funcao }))}
                                 value={parEdicao}
