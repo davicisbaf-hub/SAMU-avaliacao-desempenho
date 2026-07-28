@@ -30,6 +30,7 @@ type Usuario = {
     base: string;
     perfil: string;
     quantidade: number;
+    matricula: string;
 };
 
 type Ficha = {
@@ -86,6 +87,7 @@ export default function CadastroPage() {
     const [cpf, setCpf] = useState("");
     const [funcao, setFuncao] = useState("");
     const [perfil, setPerfil] = useState("");
+    const [matricula, setMatricula] = useState("");
     const [par, setPar] = useState<ParItem[]>([]);
     const [parEdicao, setParEdicao] = useState<ParItem[]>([]);
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -123,7 +125,7 @@ export default function CadastroPage() {
         await authFetch(`/api/usuarios/${usuarioEditando.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, email, funcao, base, perfil, par: parEdicao }),
+            body: JSON.stringify({ nome, email, funcao, base, perfil, par: parEdicao, matricula }),
         });
 
         setModalAberto(false);
@@ -183,9 +185,11 @@ export default function CadastroPage() {
                         email,
                         funcao,
                         cpf,
+                        senha,
                         base,
                         perfil,
-                        par
+                        par,
+                        matricula
                     }),
                 }
             );
@@ -207,6 +211,7 @@ export default function CadastroPage() {
             setPerfil("");
             setBase("");
             setPar([]);
+            setMatricula("");
 
             carregarUsuarios();
         } catch (error) {
@@ -252,6 +257,7 @@ export default function CadastroPage() {
         setFuncao(usuario.funcao);
         setPerfil(usuario.perfil);
         setBase(usuario.base);
+        setMatricula(usuario.matricula);
         // setCpf(usuario.cpf);
         setParEdicao(Array.isArray(usuario.par) ? usuario.par : (usuario.par ? JSON.parse(usuario.par) : []));
         setModalAberto(true);
@@ -303,7 +309,7 @@ export default function CadastroPage() {
                     <Header />
 
                     {/* conteudo */}
-                    <div className='custom-scrollbar p-[32px] overflow-y-auto'>
+                    <div className='custom-scrollbar p-8 overflow-y-auto'>
 
                         <div className="space-y-6">
 
@@ -449,10 +455,13 @@ export default function CadastroPage() {
                                         </div>
 
                                         <div className="space-y-1">
-                                            <label className="text-xs font-semibold">Matrícula</label>
+                                            <label className="text-xs font-semibold">Matricula</label>
                                             <input
                                                 type="text"
-                                                placeholder="Opcional"
+                                                value={matricula}
+                                                onChange={(e) => setMatricula(e.target.value)}
+                                                placeholder="Matricula do profissional"
+                                                required
                                                 className="w-full border rounded-lg px-3 py-2 text-sm"
                                             />
                                         </div>

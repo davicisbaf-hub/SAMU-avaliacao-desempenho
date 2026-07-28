@@ -33,7 +33,7 @@ export async function listarPorBase(req: Request, res: Response) {
 
 export async function cadastrar(req: Request, res: Response) {
   try {
-    const { nome, email, cpf, funcao, perfil, base, par } = req.body;
+    const { nome, email, cpf, senha, funcao, perfil, base, par, matricula } = req.body;
   
     
     if (!validarCpf(cpf)) {
@@ -45,10 +45,10 @@ export async function cadastrar(req: Request, res: Response) {
     const parValue = Array.isArray(par) && par.length > 0 ? par : null;
 
     const { rows } = await pool.query(
-      `INSERT INTO usuarios (nome, email, cpf, funcao, perfil, base, par)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO usuarios (nome, email, cpf, senha, funcao, perfil, base, par, matricula)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
-      [nome, email, cpf, funcao, perfil, base, JSON.stringify(parValue)]
+      [nome, email, cpf, senha, funcao, perfil, base, JSON.stringify(parValue), matricula]
     );
 
     res.status(201).json(rows[0]);
@@ -59,14 +59,14 @@ export async function cadastrar(req: Request, res: Response) {
 
 export async function atualizar(req: Request, res: Response) {
   const { id } = req.params;
-  const { nome, email, funcao, perfil, base, par } = req.body;
+  const { nome, email, funcao, perfil, base, par, matricula } = req.body;
 
   const parValue = Array.isArray(par) && par.length > 0 ? par : null;
 
   await pool.query(
-    `UPDATE usuarios SET nome=$1, email=$2, funcao=$3, perfil=$4, base=$5, par=$6
-     WHERE id=$7`,
-    [nome, email, funcao, perfil, base, JSON.stringify(parValue), id]
+    `UPDATE usuarios SET nome=$1, email=$2, funcao=$3, perfil=$4, base=$5, par=$6, matricula=$7
+     WHERE id=$8`,
+    [nome, email, funcao, perfil, base, JSON.stringify(parValue), matricula, id]
   );
 
   res.json({ ok: true });
