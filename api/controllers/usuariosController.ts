@@ -110,6 +110,7 @@ export async function getMe(req: Request, res: Response) {
       id: usuario.id,
       nome: usuario.nome,
       cpf: usuario.cpf,
+      matricula: usuario.matricula,
       senha: usuario.senha,
       senha_master: usuario.senha_master,
       funcao: usuario.funcao,
