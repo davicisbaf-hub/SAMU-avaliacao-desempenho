@@ -7,107 +7,98 @@ import { ChevronDown, Search, Globe, MessageCircleMore, HelpCircle } from 'lucid
 
 const faqData = [
   {
-    category: 'Acesso e Autenticação',
-    items: [
-      {
-        question: 'Como entro em contato com o suporte?',
-        answer: 'Envie um e-mail para suporte@sistema.com.br ou ligue para (21) 99999-9999. Nosso time está disponível de segunda a sexta, das 9h às 17h.'
-      },
-      {
-        question: 'Como redefinir minha senha?',
-        answer: 'Clique em "Esqueci minha senha" na tela de login e siga as instruções. Você receberá um link de recuperação no seu e-mail.'
-      },
-      {
-        question: 'O que fazer se esquecer o login?',
-        answer: 'Entre em contato com o suporte ou RH para recuperar suas credenciais de acesso.'
-      },
-      {
-        question: 'Posso acessar pelo celular?',
-        answer: 'Sim, o sistema é totalmente responsivo e funciona em smartphones, tablets e desktops.'
-      }
-    ]
-  },
-  {
-    category: 'Avaliações',
-    items: [
-      {
-        question: 'Quem pode acessar o sistema?',
-        answer: 'Apenas profissionais autorizados do SAMU 192 com credenciais válidas.'
-      },
-      {
-        question: 'Como visualizar minhas avaliações?',
-        answer: 'Apenas o adiministrador da sua base tem acesso as  avaliações. No menu lateral, clique em "Baixar Fichas" para ver todas as avaliações.'
-      },
-      {
-        question: 'Como baixar as fichas de avaliação?',
-        answer: 'No menu, clique em "Baixar Fichas" para obter os PDFs das suas avaliações.'
-      },
-      {
-        question: 'Posso editar uma avaliação enviada?',
-        answer: 'Não. Após o envio, a avaliação fica imutável para garantir a integridade dos dados.'
-      },
-      {
-        question: 'Como saber se minha avaliação foi enviada?',
-        answer: 'Você receberá uma confirmação na tela e um e-mail de confirmação será enviado.'
-      },
-      {
-        question: 'Como funciona a avaliação 360°?',
-        answer: 'Inclui autoavaliação (sua própria avaliação), avaliação da chefia e feedback da equipe.'
-      }
-    ]
-  },
-  {
-    category: 'Dados e Privacidade',
-    items: [
-      {
-        question: 'Quem pode ver minhas avaliações?',
-        answer: 'Apenas sua chefia direta e a coordenação de RH têm acesso às suas avaliações.'
-      },
-      {
-        question: 'Minha avaliação é anonima?',
-        answer: 'Sim, caso você tenha avaliado alguem, seu nome ficara em anonimato, exceto se tenha avaliado a si mesmo'
-      },
-      {
-        question: 'O sistema é seguro?',
-        answer: 'Sim, utilizamos criptografia de ponta a ponta, controle de acesso granular e conformidade LGPD.'
-      },
-    ]
-  },
-  {
-    category: 'Desenvolvimento e KPIs',
-    items: [
-      {
-        question: 'O que é o Plano de Desenvolvimento Individual (PDI)?',
-        answer: 'É um plano personalizado de ações para aprimorar competências e atingir objetivos profissionais.'
-      },
-      {
-        question: 'Como acessar o painel de KPIs?',
-        answer: 'No menu, clique em "Painel de KPIs" para visualizar métricas e indicadores de desempenho.'
-      },
-      {
-        question: 'Como funciona a pontuação?',
-        answer: 'A pontuação é baseada em critérios objetivos e competências definidas pelo SAMU para sua função.'
-      }
-    ]
-  },
-  {
-    category: 'Geral',
-    items: [
-      {
-        question: 'Como reportar um erro?',
-        answer: 'Envie uma descrição detalhada do erro para suporte@sistema.com.br com screenshots se possível.'
-      },
-      {
-        question: 'Como sugerir melhorias?',
-        answer: 'Envie sugestões e feedback para suporte@sistema.com.br. Adoramos ouvir ideias dos usuários!'
-      },
-      {
-        question: 'O que fazer em caso de dúvidas?',
-        answer: 'Consulte esta página ou entre em contato com nosso suporte por e-mail ou telefone.'
-      }
-    ]
-  }
-];
+  category: 'Acesso e Autenticação',
+  items: [
+    {
+      question: 'Como entro em contato com o suporte?',
+      answer: 'Para solicitar suporte, entre em contato pelo telefone (21) 97314-7367 ou acesse o sistema de chamados em chamadosti.cisbaf.org.br. Nossa equipe está disponível de segunda a sexta-feira, das 9h às 17h, para auxiliar nas solicitações.'
+    },
+    {
+      question: 'Como redefinir minha senha?',
+      answer: 'A redefinição de senha deve ser realizada por usuários com perfil de Coordenador ou Administrador. Acesse a página de Cadastro, localize o usuário desejado e selecione a opção "Redefinir senha". Após a alteração, o acesso poderá ser realizado utilizando o CPF e a senha padrão no formato "Cisbaf@AnoAtual". Exemplo: Cisbaf@2026.'
+    },
+    {
+      question: 'Posso acessar o sistema pelo celular?',
+      answer: 'Sim. O sistema possui design responsivo e está preparado para funcionar em smartphones, tablets e computadores, proporcionando uma melhor experiência de acesso em diferentes dispositivos.'
+    }
+  ]
+},
+{
+  category: 'Avaliações',
+  items: [
+    {
+      question: 'Quem pode acessar o sistema?',
+      answer: 'O acesso é restrito aos profissionais autorizados do SAMU 192 que possuem credenciais válidas cadastradas no sistema.'
+    },
+    {
+      question: 'Como visualizar minhas avaliações?',
+      answer: 'A visualização das avaliações é realizada pelos responsáveis autorizados, como coordenadores de base. No menu lateral, acesse a opção "Baixar Fichas" para consultar e gerar os documentos disponíveis.'
+    },
+    {
+      question: 'Como baixar as fichas de avaliação?',
+      answer: 'No menu lateral, selecione a opção "Baixar Fichas" para acessar e realizar o download das avaliações disponíveis em formato PDF.'
+    },
+    {
+      question: 'Posso editar uma avaliação após o envio?',
+      answer: 'Não. Após o envio, a avaliação é bloqueada para edição, garantindo a integridade, rastreabilidade e confiabilidade das informações registradas.'
+    },
+    {
+      question: 'Como funciona a avaliação 360°?',
+      answer: 'A avaliação 360° permite uma análise completa do desempenho profissional, podendo envolver autoavaliação, avaliação da liderança e contribuições da equipe, proporcionando uma visão ampla das competências avaliadas.'
+    }
+  ]
+},
+{
+  category: 'Dados e Privacidade',
+  items: [
+    {
+      question: 'Quem pode visualizar minhas avaliações?',
+      answer: 'O acesso às avaliações é controlado conforme o perfil de permissão do usuário. Gestores e responsáveis autorizados possuem acesso às informações necessárias para acompanhamento e desenvolvimento profissional.'
+    },
+    {
+      question: 'Minha avaliação é anônima?',
+      answer: 'Sim. Quando aplicável, as avaliações realizadas por terceiros preservam a identidade do avaliador, garantindo maior segurança e transparência no processo. A identificação ocorre apenas quando o usuário realiza uma autoavaliação.'
+    },
+    {
+      question: 'O sistema é seguro?',
+      answer: 'Sim. O sistema utiliza mecanismos de segurança, controle de acesso por perfil e boas práticas de proteção de dados, seguindo os princípios estabelecidos pela Lei Geral de Proteção de Dados (LGPD).'
+    }
+  ]
+},
+{
+  category: 'Desenvolvimento e KPIs',
+  items: [
+    {
+      question: 'O que é o Plano de Desenvolvimento Individual (PDI)?',
+      answer: 'O Plano de Desenvolvimento Individual (PDI) é uma ferramenta que organiza ações e metas personalizadas para aprimorar competências, desenvolver habilidades e contribuir para o crescimento profissional.'
+    },
+    {
+      question: 'Como acessar o painel de KPIs?',
+      answer: 'No menu lateral, selecione a opção "Painel de KPIs" para visualizar indicadores, métricas de desempenho e informações estratégicas relacionadas às avaliações realizadas.'
+    },
+    {
+      question: 'Como funciona a pontuação das avaliações?',
+      answer: 'A pontuação é calculada com base nos critérios de avaliação e competências definidos para cada função, permitindo uma análise objetiva do desempenho profissional.'
+    }
+  ]
+},
+{
+  category: 'Geral',
+  items: [
+    {
+      question: 'Como reportar um erro no sistema?',
+      answer: 'Para comunicar um erro, envie uma descrição detalhada do problema, incluindo capturas de tela quando possível, através do sistema de chamados em chamadosti.cisbaf.org.br.'
+    },
+    {
+      question: 'Como sugerir melhorias?',
+      answer: 'Sugestões e melhorias podem ser enviadas através do sistema de chamados em chamadosti.cisbaf.org.br. A participação dos usuários contribui para a evolução contínua da plataforma.'
+    },
+    {
+      question: 'O que fazer em caso de dúvidas?',
+      answer: 'Consulte esta central de ajuda ou entre em contato com o suporte através do sistema de chamados em chamadosti.cisbaf.org.br ou pelo telefone (21) 97314-7367.'
+    }
+  ]
+}]
 
 function FAQItem({ question, answer }) {
   const [isOpen, setIsOpen] = useState(false);
