@@ -28,13 +28,17 @@ export async function login(req: Request, res: Response) {
       `SELECT *
        FROM usuarios
        WHERE senha = $1
-       AND base = $2 AND perfil='Administrador / CISBAF'`,
+       AND base = $2 
+       AND perfil='Administrador / CISBAF'
+       AND ativo = true
+       `,
+
       [senha, base]
     );
 
     if (result.rows.length === 0) {
       return res.status(401).json({
-        erro: "Base inválida.",
+        erro: "Erro.",
       });
     }
 
@@ -126,13 +130,15 @@ export async function loginWithEmail(req: Request, res: Response) {
        FROM usuarios
        WHERE cpf = $1
        AND senha = $2
-       AND base = $3`,
+       AND base = $3
+       AND ativo = true
+       `,
       [cpf, senha, base]
     );
 
     if (result.rows.length === 0) {
       return res.status(401).json({
-        erro: "Base inválida.",
+        erro: "Erro.",
       });
     }
 
