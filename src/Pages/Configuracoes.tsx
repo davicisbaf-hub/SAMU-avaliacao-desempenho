@@ -178,7 +178,6 @@ export default function ConfiguracaoPage() {
     setCriterio("");
     setPeso(1);
     setIndicador("");
-    setAvaliacaoSelecionada("");
     setModalAberto(false);
   }
 
