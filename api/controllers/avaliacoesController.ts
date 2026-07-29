@@ -65,8 +65,8 @@ export async function listar(req: Request, res: Response) {
         a.plano_acao,
         a.criado_em
       FROM avaliacoes a
-      JOIN usuarios avaliador ON avaliador.id = a.avaliador_id
-      JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
+      JOIN usuarios avaliador ON avaliador.id = a.avaliador_id AND avaliador.ativo = TRUE
+      JOIN usuarios avaliado ON avaliado.id = a.avaliado_id AND avaliado.ativo = TRUE
       ${whereClause}
       ORDER BY a.criado_em DESC
     `, params);
@@ -103,18 +103,28 @@ export async function criar(req: Request, res: Response) {
       });
     }
 
-    // ========== Buscar dados do usuário avaliado ==========
+    // ========== Buscar dados do usuário avaliado (apenas se ativo) ==========
     const usuarioResult = await pool.query(
-      `SELECT id, criado_em FROM usuarios WHERE id = $1`,
+      `SELECT id, criado_em FROM usuarios WHERE id = $1 AND ativo = TRUE`,
       [avaliadoId]
     );
 
     if (usuarioResult.rows.length === 0) {
-      return res.status(404).json({ erro: "Usuário avaliado não encontrado." });
+      return res.status(404).json({ erro: "Usuário avaliado não encontrado ou inativo." });
+    }
+
+    // ========== Buscar dados do avaliador (apenas se ativo) ==========
+    const avaliadorResult = await pool.query(
+      `SELECT id FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+      [avaliadorId]
+    );
+
+    if (avaliadorResult.rows.length === 0) {
+      return res.status(404).json({ erro: "Usuário avaliador não encontrado ou inativo." });
     }
 
     const usuarioAvaliado = usuarioResult.rows[0];
-    
+
     // ========== Determina o nível dinamicamente ==========
     let nivel: string;
     try {
@@ -364,14 +374,14 @@ export async function infosUsuario(req: Request, res: Response) {
       return res.status(400).json({ erro: "Parâmetro 'usuarioId' é obrigatório." });
     }
 
-    // Busca dados do usuário (incluindo nome)
+    // Busca dados do usuário (incluindo nome) — apenas se ativo
     const usuarioResult = await pool.query(
-      `SELECT id, nome, criado_em FROM usuarios WHERE id = $1`,
+      `SELECT id, nome, criado_em FROM usuarios WHERE id = $1 AND ativo = TRUE`,
       [usuarioId]
     );
 
     if (usuarioResult.rows.length === 0) {
-      return res.status(404).json({ erro: "Usuário não encontrado." });
+      return res.status(404).json({ erro: "Usuário não encontrado ou inativo." });
     }
 
     const usuario = usuarioResult.rows[0];
@@ -408,6 +418,16 @@ export async function infosUsuario(req: Request, res: Response) {
 
     // Se informou avaliador, modalidade e tipo_avaliacao, busca última avaliação
     if (avaliadorId && modalidade && tipoAvaliacao) {
+      // Confirma que o avaliador também está ativo antes de considerar a consulta
+      const avaliadorResult = await pool.query(
+        `SELECT id FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+        [avaliadorId]
+      );
+
+      if (avaliadorResult.rows.length === 0) {
+        return res.status(404).json({ erro: "Usuário avaliador não encontrado ou inativo." });
+      }
+
       const ultimaResult = await pool.query(
         `
         SELECT id, criado_em,
