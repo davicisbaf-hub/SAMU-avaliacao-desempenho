@@ -394,7 +394,7 @@ async function exportarCriteriosExcel(criterios: any[]) {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold">Tipo de Profissional</label>
+                    <label className="text-sm font-semibold">Tipo de Avaliação</label>
                     <select
                       value={tipoSelecionado}
                       onChange={(e) => setTipoSelecionado(e.target.value)}
@@ -410,7 +410,7 @@ async function exportarCriteriosExcel(criterios: any[]) {
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold">Tipo de Avaliação</label>
+                    <label className="text-sm font-semibold">Modalidade</label>
                     <select
                       value={avaliacaoSelecionada}
                       onChange={(e) => setAvaliacaoSelecionada(e.target.value)}
@@ -750,7 +750,7 @@ async function exportarCriteriosExcel(criterios: any[]) {
               </div>
 
               <div>
-                <label className="text-sm font-semibold">Tipo de Profissional</label>
+                <label className="text-sm font-semibold">Tipo de Avaliação</label>
                 <select
                   value={tipoSelecionado}
                   onChange={(e) => setTipoSelecionado(e.target.value)}
@@ -766,7 +766,7 @@ async function exportarCriteriosExcel(criterios: any[]) {
               </div>
 
               <div>
-                <label className="text-sm font-medium">Tipo de Avaliação</label>
+                <label className="text-sm font-medium">Modalidade</label>
                 <select
                   value={avaliacaoSelecionada}
                   onChange={(e) => setAvaliacaoSelecionada(e.target.value)}
