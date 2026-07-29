@@ -33,6 +33,7 @@ export async function avaliacoesPorCategoria(req: Request, res: Response) {
       JOIN criterios_avaliacao ca ON a.tipo_avaliacao = ca.tipo AND ca.ativo = true
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
       WHERE a.resultado->ca.criterio->>'nota' IS NOT NULL
+      AND avaliado.ativo = true
       ${whereClause}
       GROUP BY ca.categoria, a.tipo_avaliacao, ca.tipo
       ORDER BY a.tipo_avaliacao, ca.categoria
@@ -69,7 +70,7 @@ export async function avaliacoesPorProfissional(req: Request, res: Response) {
         )::NUMERIC, 2) as media_geral
       FROM avaliacoes a
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
-      WHERE 1=1
+      WHERE avaliado.ativo = true
       ${whereClause}
       GROUP BY avaliado.id, avaliado.nome, avaliado.funcao, a.tipo_avaliacao
       ORDER BY a.tipo_avaliacao, avaliado.funcao
