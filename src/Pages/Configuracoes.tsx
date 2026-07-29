@@ -307,8 +307,10 @@ async function exportarCriteriosExcel(criterios: any[]) {
     });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
+    const data = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo",});
+    
     a.href = url;
-    a.download = `criterios_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.download = `criterios_${tipoSelecionado}_${avaliacaoSelecionada}_${data}.xlsx`;
     a.click();
     window.URL.revokeObjectURL(url);
   }
