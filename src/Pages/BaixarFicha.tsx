@@ -495,6 +495,10 @@ export default function BaixarFicha() {
 								/>
 							);
 						})()}
+						<p className="text-xs text-gray-500 mt-2">
+							Documento gerado em: {new Date().toLocaleDateString("pt-BR")} às{" "}
+							{new Date().toLocaleTimeString("pt-BR")} por {user?.nome}
+						</p>
 					</div>
 				</div>
 			)}

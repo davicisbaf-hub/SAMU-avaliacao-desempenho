@@ -1183,7 +1183,10 @@ export default function PlanoDesenvolvimento() {
               </div>
 
               <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #ccc', fontSize: '12px', color: '#666' }}>
-                <p>Documento gerado em: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  Documento gerado em: {new Date().toLocaleDateString("pt-BR")} às{" "}
+                  {new Date().toLocaleTimeString("pt-BR")} por {user?.nome}
+                </p>
               </div>
             </div>
           )}
