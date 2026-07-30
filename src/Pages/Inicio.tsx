@@ -156,7 +156,7 @@ export default function Inicio() {
                 {fichas
                   .filter((ficha) => {
                     // nunca exibe essa ficha
-                    if (ficha.nome === "Liderado > Liderança" || ficha.nome === "Liderança > Liderado" || ficha.nome === 'BP-TEAM') {
+                    if (ficha.nome === 'BP-TEAM' || ficha.nome === 'Avaliação Par') {
                       return false;
                     }
 
@@ -165,8 +165,7 @@ export default function Inicio() {
                     if (isAdmin) return true;
 
                     return (
-                      ficha.nome === user?.funcao ||
-                      ficha.nome === 'BP-TEAM'
+                      ficha.nome === user?.funcao
                        
                     );
                   })
