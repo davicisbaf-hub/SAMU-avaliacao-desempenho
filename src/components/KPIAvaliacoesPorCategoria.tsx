@@ -253,7 +253,7 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
 
       </div>
         <div className="bg-white rounded-lg border p-6">
-        <h3 className="text-lg font-bold mb-4">Comparativo por Função</h3>
+        <h3 className="text-lg font-bold mb-4">Comparativo por Ficha</h3>
         <ResponsiveContainer width="100%" height={Math.max(250, dadosPorTipo.length * 90)}>
           <BarChart data={dadosPorTipo} layout="vertical" margin={{ top: 10, right: 30, left: 40, bottom: 10 }} barSize={35}>
             <XAxis type="number" allowDecimals={false} />
