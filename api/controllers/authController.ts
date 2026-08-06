@@ -2,8 +2,6 @@ import type { Request, Response } from "express";
 import pool from "../pool";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "samu-secret-key";
-
 export async function login(req: Request, res: Response) {
   let { senha, base } = req.body;
 
@@ -57,7 +55,7 @@ export async function login(req: Request, res: Response) {
       perfil: usuario.perfil,
       base: usuario.base,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     {
       expiresIn: "8h",
     }
@@ -157,7 +155,7 @@ export async function loginWithEmail(req: Request, res: Response) {
       perfil: usuario.perfil,
       base: usuario.base,
     },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     {
       expiresIn: "8h",
     }

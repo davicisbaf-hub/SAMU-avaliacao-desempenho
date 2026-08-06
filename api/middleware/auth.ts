@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 
-const JWT_SECRET = process.env.JWT_SECRET || "samu-secret-key";
-
 export function autenticar(req: Request, res: Response, next: NextFunction) {
   // Try Authorization header first, then cookie
   const headerToken = req.headers.authorization?.split(" ")[1];
@@ -14,7 +12,7 @@ export function autenticar(req: Request, res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     (req as any).usuario = payload;
     next();
   } catch {

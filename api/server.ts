@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -7,16 +11,6 @@ import { dirname, join } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// rotas
-import authRoutes from "./routes/auth.js";
-import usuariosRoutes from "./routes/usuarios.js";
-import avaliacoesRoutes from "./routes/avaliacoes.js";
-import criteriosRoutes from "./routes/criterios.js";
-import kpisRoutes from "./routes/kpis.js";
-import auxiliaresRoutes from "./routes/auxiliares.js";
-import { autenticar } from "./middleware/auth.js";
-
-
 import { apiReference } from "@scalar/express-api-reference";
 import { readFileSync } from "fs";
 
@@ -25,7 +19,6 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(express.json());
-
 app.use((req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   next();
@@ -68,7 +61,15 @@ app.use(
   })
 );
 
-// Rotas da API
+// rotas
+import authRoutes from "./routes/auth.js";
+import usuariosRoutes from "./routes/usuarios.js";
+import avaliacoesRoutes from "./routes/avaliacoes.js";
+import criteriosRoutes from "./routes/criterios.js";
+import kpisRoutes from "./routes/kpis.js";
+import auxiliaresRoutes from "./routes/auxiliares.js";
+import { autenticar } from "./middleware/auth.js";
+
 
 app.use("/", authRoutes);
 app.use("/", auxiliaresRoutes);
