@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import { env } from "../../config/env.ts";
 
 export function autenticar(req: Request, res: Response, next: NextFunction) {
   // Try Authorization header first, then cookie
@@ -12,7 +13,7 @@ export function autenticar(req: Request, res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, env.jwtSecret);
     (req as any).usuario = payload;
     next();
   } catch {
