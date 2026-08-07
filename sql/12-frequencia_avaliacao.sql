@@ -21,3 +21,4 @@ INSERT INTO frequencia_avaliacao (tipo_avaliacao, dia) VALUES ('Liderado > Lider
 INSERT INTO frequencia_avaliacao (tipo_avaliacao, dia) VALUES ('Lider > Liderado', 1);
 INSERT INTO frequencia_avaliacao (tipo_avaliacao, dia) VALUES ('Par', 1);
 
+
