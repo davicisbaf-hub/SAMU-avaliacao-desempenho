@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
-
+import { env } from "../config/env.ts";
 
 import express from "express";
 import cors from "cors";
@@ -16,7 +14,7 @@ import { readFileSync } from "fs";
 
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = env.port || 3001;
 
 app.use(express.json());
 app.use((req, res, next) => {

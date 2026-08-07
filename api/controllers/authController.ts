@@ -1,9 +1,11 @@
 import type { Request, Response } from "express";
 import pool from "../pool";
 import jwt from "jsonwebtoken";
+import { env } from "../../config/env.ts";
+
 
 export async function login(req: Request, res: Response) {
-  let { senha, base } = req.body;
+  const { senha, base } = req.body;
 
   // Busca todos os usuários com o CPF informado
   const usuarios = await pool.query(
@@ -55,7 +57,7 @@ export async function login(req: Request, res: Response) {
       perfil: usuario.perfil,
       base: usuario.base,
     },
-    process.env.JWT_SECRET,
+    env.jwtSecret,
     {
       expiresIn: "8h",
     }
@@ -63,7 +65,7 @@ export async function login(req: Request, res: Response) {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.nodeEnv === "production",
     sameSite: "strict",
     maxAge: 8 * 60 * 60 * 1000, // 8 horas
   });
@@ -155,7 +157,7 @@ export async function loginWithEmail(req: Request, res: Response) {
       perfil: usuario.perfil,
       base: usuario.base,
     },
-    process.env.JWT_SECRET,
+    env.jwtSecret,
     {
       expiresIn: "8h",
     }
@@ -164,7 +166,7 @@ export async function loginWithEmail(req: Request, res: Response) {
   // Set token as HttpOnly cookie instead of returning it in the response body
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env.nodeEnv === "production",
     sameSite: "strict",
     maxAge: 8 * 60 * 60 * 1000, // 8 hours
   });
