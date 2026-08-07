@@ -147,12 +147,19 @@ SAMU-avaliacao-desempenho-v2/
 Criar arquivo `.env`:
 
 ```env
-# Backend
-DATABASE_URL=postgresql://user:password@localhost:5432/samu
-JWT_SECRET=seu_secret_super_seguro_aqui
-
-# Frontend
+## Frontend
+JWT_SECRET=SUA_SENHA_SECRETA
+PORT=3001
 VITE_API_URL=http://localhost:3001
+
+## Backend
+DB_HOST=localhost
+DB_PORT=5490
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_SCHEMA=public
+nodeEnv=production
 ```
 
 ---
@@ -229,11 +236,6 @@ npm run preview   # Visualizar build
 - Arquivo: `api/ScalarDocs.yaml`
 - URL (quando rodando): `http://localhost:3001/docs`
 
----
-
-
-## Manual Sistema
-📄 **Manual completo**: [Baixar PDF](docs/manual-sistema.pdf)
 
 ---
 
