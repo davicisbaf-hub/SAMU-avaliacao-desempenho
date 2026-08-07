@@ -3,10 +3,12 @@ services:
     image: postgres:15-alpine
     container_name: samu-db
     restart: always
+    env_file:
+    - .env
     environment:
-      POSTGRES_USER: samu
-      POSTGRES_PASSWORD: samu
-      POSTGRES_DB: samu
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5490:5432" # Deixamos o banco na 5490 fixa para você acessar no DBeaver
     volumes:
