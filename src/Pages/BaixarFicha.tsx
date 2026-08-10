@@ -12,496 +12,513 @@ import { useAuthFetch } from "../hooks/useAuthFetch";
 
 
 type Criterios = {
-	categoria: string;
-	codigo: number;
-	criterio: string;
-	peso: number;
-	id: string | number;
-	indicador: string;
-	titulo: string;
+    categoria: string;
+    codigo: number;
+    criterio: string;
+    peso: number;
+    id: string | number;
+    indicador: string;
+    titulo: string;
 };
 
 type EscalaLikert = {
-	nota: number;
-	titulo: string;
-	descricao: string;
-	cor: string;
+    nota: number;
+    titulo: string;
+    descricao: string;
+    cor: string;
 };
 
 type Peso = {
-	valor: number;
-	descricao: string;
-	cor: string;
+    valor: number;
+    descricao: string;
+    cor: string;
 };
 
 type Base = {
-	id: number;
-	nome: string;
-	cor: string;
+    id: number;
+    nome: string;
+    cor: string;
 };
 
 type Avaliacao = {
-	id: number;
-	avaliador_nome: string;
-	avaliador_funcao: string;
-	avaliado_nome: string;
-	avaliado_base: string;
-	avaliado_funcao: string;
-	modalidade: string;
-	funcao: string;
-	tipo_avaliacao: string;
-	base?: string;
-	resultado: Record<string, { nota: number; peso: number; }>;
-	observacoes_gerais?: string;
-	pontos_melhorar?: string;
-	plano_acao?: string;
-	criado_em: string;
-	avaliacao: string;
+    id: number;
+    avaliador_nome: string;
+    avaliador_funcao: string;
+    avaliado_nome: string;
+    avaliado_base: string;
+    avaliado_funcao: string;
+    avaliado_ativo: boolean;
+    modalidade: string;
+    funcao: string;
+    tipo_avaliacao: string;
+    base?: string;
+    resultado: Record<string, { nota: number; peso: number; }>;
+    observacoes_gerais?: string;
+    pontos_melhorar?: string;
+    plano_acao?: string;
+    criado_em: string;
+    avaliacao: string;
 };
 
 type Usuario = {
-	id: number;
-	nome: string;
-	email: string;
-	funcao: string;
-	perfil: string;
-	base: string;
+    id: number;
+    nome: string;
+    email: string;
+    funcao: string;
+    perfil: string;
+    base: string;
 };
 
 export default function BaixarFicha() {
-	const [filtroUsuario, setFiltroUsuario] = useState("");
-	const [filtroFuncao, setFiltroFuncao] = useState("");
-	const [filtroTipo, setFiltroTipo] = useState("");
-	const [filtroBase, setFiltroBase] = useState("");
-	const [dataInicio, setDataInicio] = useState<Date | null>(null);
-	const [dataFim, setDataFim] = useState<Date | null>(null);
-	const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
-	const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<Avaliacao | null>(null);
+    const [filtroUsuario, setFiltroUsuario] = useState("");
+    const [filtroFuncao, setFiltroFuncao] = useState("");
+    const [filtroTipo, setFiltroTipo] = useState("");
+    const [filtroBase, setFiltroBase] = useState("");
+    const [dataInicio, setDataInicio] = useState<Date | null>(null);
+    const [dataFim, setDataFim] = useState<Date | null>(null);
+    const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
+    const [avaliacaoSelecionada, setAvaliacaoSelecionada] = useState<Avaliacao | null>(null);
 
-	const [criterios, setCriterios] = useState<Criterios[]>([]);
-	const [escalaLikert, setEscalaLikert] = useState<EscalaLikert[]>([]);
-	const [pesos, setPesos] = useState<Peso[]>([]);
-	const [bases, setBases] = useState<Base[]>([]);
+    const [criterios, setCriterios] = useState<Criterios[]>([]);
+    const [escalaLikert, setEscalaLikert] = useState<EscalaLikert[]>([]);
+    const [pesos, setPesos] = useState<Peso[]>([]);
+    const [bases, setBases] = useState<Base[]>([]);
 
-	const fichaRefParaPdf = useRef<HTMLDivElement>(null);
-	const [avaliacaoParaPdf, setAvaliacaoParaPdf] = useState<Avaliacao | null>(null);
-	const [criteriosParaPdf, setCriteriosParaPdf] = useState<Criterios[]>([]);
-	
-	const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-	
-	const { user, selectedBases } = useUserSession();
-	const userBase = user?.base;
-	const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
-	const isAdmin = user?.perfil === "Coordenador de Base";
-	const baseFilter = selectedBases.length > 0
-		? selectedBases
-		: isAdminGlobal
-			? []
-			: userBase
-				? [userBase]
-				: [];
-	const { authFetch } = useAuthFetch();
-	
+    const fichaRefParaPdf = useRef<HTMLDivElement>(null);
+    const [avaliacaoParaPdf, setAvaliacaoParaPdf] = useState<Avaliacao | null>(null);
+    const [criteriosParaPdf, setCriteriosParaPdf] = useState<Criterios[]>([]);
+    const [statusFiltro, setStatusFiltro] = useState("");
 
-	useEffect(() => {
-		carregarUsuarios();
-	}, []);
+    const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
-	async function carregarUsuarios() {
-		try {
-			const res = await authFetch("/api/usuarios");
-			const data = await res.json();
-			setUsuarios(data);
-		} catch (error) {
-			console.error(error);
-		}
-	}
+    const { user, selectedBases } = useUserSession();
+    const userBase = user?.base;
+    const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+    const isAdmin = user?.perfil === "Coordenador de Base";
+    const baseFilter = selectedBases.length > 0
+        ? selectedBases
+        : isAdminGlobal
+            ? []
+            : userBase
+                ? [userBase]
+                : [];
+    const { authFetch } = useAuthFetch();
 
-	const imprimirParaPdf = useReactToPrint({
-		contentRef: fichaRefParaPdf,
-		documentTitle: `Ficha-Avaliacao-${avaliacaoParaPdf?.avaliado_nome}`,
-	});
 
-	useEffect(() => {
-		const url = baseFilter.length
-			? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
-			: "/api/avaliacoes";
 
-		authFetch(url)
-			.then((res) => res.json())
-			.then(setAvaliacoes)
-			.catch(console.error);
-	}, [baseFilter.join(",")]);
+    async function carregarUsuarios() {
+        try {
+            const res = await authFetch(`/api/usuarios?status=${statusFiltro}`);
+            const data = await res.json();
+            setUsuarios(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    useEffect(() => {
+        carregarUsuarios();
+    }, []);
 
-	useEffect(() => {
-		Promise.all([
-			authFetch("/api/escala-likert").then(r => r.json()),
-			authFetch("/api/pesos-avaliacao").then(r => r.json()),
-			authFetch("/api/bases").then(r => r.json()),
-		]).then(([likert, pesos, bases]) => {
-			setEscalaLikert(likert);
-			setPesos(pesos);
-			setBases(bases);
-		}).catch(console.error);
-	}, []);
+    const imprimirParaPdf = useReactToPrint({
+        contentRef: fichaRefParaPdf,
+        documentTitle: `Ficha-Avaliacao-${avaliacaoParaPdf?.avaliado_nome}`,
+    });
 
-	useEffect(() => {
-  		if (!avaliacaoSelecionada) return;
+    useEffect(() => {
+        const url = baseFilter.length
+            ? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
+            : "/api/avaliacoes";
 
-		// Usar critérios salvos na avaliação (histórico) em vez de buscar os atuais
-		const criteriosFromResultado = Object.values(avaliacaoSelecionada.resultado)
-			.filter((item: any) => item.criterio && item.codigo)
-			.map((item: any, idx: number) => ({
-				id: String(idx),
-				categoria: item.categoria || "Sem categoria",
-				codigo: item.codigo,
-				criterio: item.criterio,
-				peso: item.peso ?? 1,
-				indicador: "",
-				titulo: item.criterio,
-			}));
-		
-		setCriterios(criteriosFromResultado);
-		}, [avaliacaoSelecionada]);
-	
-	
+        authFetch(url)
+            .then((res) => res.json())
+            .then(setAvaliacoes)
+            .catch(console.error);
+    }, [baseFilter.join(",")]);
 
-	// Nomes dos usuários que são da minha base
-	// const nomesNaMinhaBase = usuarios
-	// 	.filter(u => isAdminGlobal || u.base === userBase)
-	// 	.map(u => u.nome);
+    useEffect(() => {
+        Promise.all([
+            authFetch("/api/escala-likert").then(r => r.json()),
+            authFetch("/api/pesos-avaliacao").then(r => r.json()),
+            authFetch("/api/bases").then(r => r.json()),
+        ]).then(([likert, pesos, bases]) => {
+            setEscalaLikert(likert);
+            setPesos(pesos);
+            setBases(bases);
+        }).catch(console.error);
+    }, []);
 
-	const avaliacoesPermitidas = avaliacoes.filter((avaliacao) => {
-		const ehAutoavaliacao =
-			avaliacao.avaliador_nome === avaliacao.avaliado_nome;
+    useEffect(() => {
+        if (!avaliacaoSelecionada) return;
 
-		// Administrador global - vê tudo, ou apenas as bases selecionadas
-		if (isAdminGlobal) {
-			if (!baseFilter.length) return true;
-			return baseFilter.includes(avaliacao.avaliado_base);
-		}
+        // Usar critérios salvos na avaliação (histórico) em vez de buscar os atuais
+        const criteriosFromResultado = Object.values(avaliacaoSelecionada.resultado)
+            .filter((item: any) => item.criterio && item.codigo)
+            .map((item: any, idx: number) => ({
+                id: String(idx),
+                categoria: item.categoria || "Sem categoria",
+                codigo: item.codigo,
+                criterio: item.criterio,
+                peso: item.peso ?? 1,
+                indicador: "",
+                titulo: item.criterio,
+            }));
 
-		// Administrador da base
-		if (isAdmin) {
-			return avaliacao.avaliado_base === userBase;
-		}
+        setCriterios(criteriosFromResultado);
+    }, [avaliacaoSelecionada]);
 
-		// Usuário comum
-		return (
-			ehAutoavaliacao &&
-			avaliacao.avaliado_nome === user?.nome
-		);
-	});
 
-	const handleViewClick = (avaliacao: Avaliacao) => {
-		setAvaliacaoSelecionada(avaliacao);
-	};
-	
 
-	const tipos = [...new Set(avaliacoesPermitidas.map(a => a.tipo_avaliacao))];
+    // Nomes dos usuários que são da minha base
+    // const nomesNaMinhaBase = usuarios
+    // 	.filter(u => isAdminGlobal || u.base === userBase)
+    // 	.map(u => u.nome);
 
-		
-	const avaliacoesFiltradas = avaliacoesPermitidas.filter((avaliacao) => {
-		const dataAvaliacao = new Date(avaliacao.criado_em);
-		
-		const dataAvaliacaoStr = dataAvaliacao.toISOString().split('T')[0];
-		
-		const dataInicioStr = dataInicio ? dataInicio.toISOString().split('T')[0] : null;
-		const dataFimStr = dataFim ? dataFim.toISOString().split('T')[0] : null;
+    const avaliacoesPermitidas = avaliacoes.filter((avaliacao) => {
+        const ehAutoavaliacao =
+            avaliacao.avaliador_nome === avaliacao.avaliado_nome;
 
-		const passouUsuario =
-			!filtroUsuario ||
-			avaliacao.avaliado_nome
-				.toLowerCase()
-				.includes(filtroUsuario.toLowerCase());
+        // Administrador global - vê tudo, ou apenas as bases selecionadas
+        if (isAdminGlobal) {
+            if (!baseFilter.length) return true;
+            return baseFilter.includes(avaliacao.avaliado_base);
+        }
 
-		
+        // Administrador da base
+        if (isAdmin) {
+            return avaliacao.avaliado_base === userBase;
+        }
 
-		const passouTipo =
-			!filtroTipo ||
-			avaliacao.tipo_avaliacao === filtroTipo;
+        // Usuário comum
+        return (
+            ehAutoavaliacao &&
+            avaliacao.avaliado_nome === user?.nome
+        );
+    });
 
-		const passouDataInicio =
-			!dataInicioStr ||
-			dataAvaliacaoStr >= dataInicioStr;
+    const handleViewClick = (avaliacao: Avaliacao) => {
+        setAvaliacaoSelecionada(avaliacao);
+    };
 
-		const passouDataFim =
-			!dataFimStr ||
-			dataAvaliacaoStr <= dataFimStr;
 
-		const usuarioAvaliado = usuarios.find(u => u.nome === avaliacao.avaliado_nome);
-			const passouBase =
-				!isAdminGlobal || !filtroBase || usuarioAvaliado?.base === filtroBase;
+    const tipos = [...new Set(avaliacoesPermitidas.map(a => a.tipo_avaliacao))];
 
-		return (
-			passouUsuario &&
-			passouTipo &&
-			passouDataInicio &&
-			passouDataFim && 
-			passouBase 
-		);
-	});
 
-	
-	const handleDownloadPdf = async (avaliacao: Avaliacao) => {
-		try {
-			const criteriosFromResultado = Object.values(avaliacao.resultado)
-				.filter((item: any) => item.criterio && item.codigo)
-				.map((item: any, idx: number) => ({
-					id: String(idx),
-					categoria: item.categoria || "Sem categoria",
-					codigo: item.codigo,
-					criterio: item.criterio,
-					peso: item.peso ?? 1,
-					indicador: "",
-					titulo: item.criterio,
-				}));
-			
-			setCriteriosParaPdf(criteriosFromResultado);
-			setAvaliacaoParaPdf(avaliacao);
-			setTimeout(() => {
-				imprimirParaPdf();
-			}, 100);
-		} catch (error) {
-			console.error('Erro ao gerar PDF:', error);
-		}
-	};
+    const avaliacoesFiltradas = avaliacoesPermitidas.filter((avaliacao) => {
+        const dataAvaliacao = new Date(avaliacao.criado_em);
 
-	return (
-		<div>
-			<div className="flex h-screen w-screen bg-white text-black">
-				<Nav />
+        const dataAvaliacaoStr = dataAvaliacao.toISOString().split('T')[0];
 
-				<div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-					<Header />
+        const dataInicioStr = dataInicio ? dataInicio.toISOString().split('T')[0] : null;
+        const dataFimStr = dataFim ? dataFim.toISOString().split('T')[0] : null;
 
-					<div className='custom-scrollbar p-[32px] overflow-y-auto'>
-						<div className="space-y-4">
+        const passouUsuario =
+            !filtroUsuario ||
+            avaliacao.avaliado_nome
+                .toLowerCase()
+                .includes(filtroUsuario.toLowerCase());
 
-							<h1 className="text-2xl font-bold">
-								Avaliações Enviadas
-							</h1>
+        const passouTipo =
+            !filtroTipo ||
+            avaliacao.tipo_avaliacao === filtroTipo;
 
-							<div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-4 grid-rows-1 gap-3">
-								<input
-									type="text"
-									value={filtroUsuario}
-									onChange={(e) => setFiltroUsuario(e.target.value)}
-									placeholder="Avaliado"
-									className="border rounded-lg px-3 py-2"
-								/>
+        const passouDataInicio =
+            !dataInicioStr ||
+            dataAvaliacaoStr >= dataInicioStr;
 
-								<select
-									value={filtroTipo}
-									onChange={(e) => setFiltroTipo(e.target.value)}
-									className="border rounded-lg px-3 py-2"
-								>
-									<option value="">Tipos de ficha</option>
-									{tipos.map(tipo => (
-										<option key={tipo} value={tipo}>
-											{tipo}
-										</option>
-									))}
-								</select>
+        const passouDataFim =
+            !dataFimStr ||
+            dataAvaliacaoStr <= dataFimStr;
 
-								<div className="flex gap-2">
-									<DatePicker
-										selected={dataInicio}
-										onChange={(date: Date | null) => setDataInicio(date)}
-										dateFormat="dd/MM/yyyy"
-										placeholderText="Data inicial"
-										className="border rounded-lg px-3 py-2 w-full react-datepicker"
-									/>
-									<DatePicker
-										selected={dataFim}
-										onChange={(date: Date | null) => setDataFim(date)}
-										dateFormat="dd/MM/yyyy"
-										placeholderText="Data final"
-										className="border rounded-lg px-3 py-2 w-full react-datepicker"
-									/>
-								</div>
+        const usuarioAvaliado = usuarios.find(u => u.nome === avaliacao.avaliado_nome);
+        const passouBase =
+            !isAdminGlobal || !filtroBase || usuarioAvaliado?.base === filtroBase;
 
-								<button
-									onClick={() => {
-										setFiltroUsuario("");
-										setFiltroFuncao("");
-										setFiltroTipo("");
-										setDataInicio(null);
-										setDataFim(null);
-										setFiltroBase("");
-									}}
-									className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
-								>
-									Limpar filtros
-								</button>
-							</div>
+        // novo: status ativo/inativo do avaliado
+        const estaAtivo = avaliacao.avaliado_ativo !== false;
+        const passouStatus =
+            !statusFiltro ||
+            (statusFiltro === "Ativo" ? estaAtivo : !estaAtivo);
 
-							<div className="bg-white rounded-xl border overflow-hidden">
-								<div className="overflow-x-auto">
-									<table className="w-full">
-										<thead className="bg-gray-100 border-b">
-											<tr className="text-center">
-												<th className="px-4 py-3">#</th>
-												<th className="px-4 py-3">Avaliado</th>
-												<th className="px-4 py-3">Avaliador</th>
-												<th className="px-4 py-3">Tipo avaliação</th>
-												<th className="px-4 py-3">Data</th>
-												<th className="px-4 py-3">Ações</th>
-											</tr>
-										</thead>
+        return (
+            passouUsuario &&
+            passouTipo &&
+            passouDataInicio &&
+            passouDataFim &&
+            passouBase &&
+            passouStatus
+        );
+    });
 
-										<tbody>
-											{avaliacoesFiltradas.map((avaliacao) => (
-												<tr key={avaliacao.id} className="border-b hover:bg-gray-50">
-													<td className="px-4 py-3">{avaliacao.id}</td>
 
-													<td className="px-4 py-3 font-medium">
-														{avaliacao.avaliado_funcao} - {avaliacao.avaliado_nome}
-													</td>
+    const handleDownloadPdf = async (avaliacao: Avaliacao) => {
+        try {
+            const criteriosFromResultado = Object.values(avaliacao.resultado)
+                .filter((item: any) => item.criterio && item.codigo)
+                .map((item: any, idx: number) => ({
+                    id: String(idx),
+                    categoria: item.categoria || "Sem categoria",
+                    codigo: item.codigo,
+                    criterio: item.criterio,
+                    peso: item.peso ?? 1,
+                    indicador: "",
+                    titulo: item.criterio,
+                }));
 
-													{avaliacao.avaliador_nome === user?.nome  
-														|| avaliacao.avaliador_nome === avaliacao.avaliado_nome 
-														|| isAdminGlobal ? (
-														<td className="px-4 py-3">
-															{avaliacao.avaliador_funcao} - {avaliacao.avaliador_nome}
-														</td>
-														) : (
-														<td className="px-4 py-3 blur select-none pointer-events-none">
-															Anônimo
-														</td>
-													)}
-													
-													<td className="px-4 py-3">
-														<span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
-															{avaliacao.modalidade}
-														</span>
-													</td>
+            setCriteriosParaPdf(criteriosFromResultado);
+            setAvaliacaoParaPdf(avaliacao);
+            setTimeout(() => {
+                imprimirParaPdf();
+            }, 100);
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+        }
+    };
 
-													<td className="px-4 py-3">
-														{new Date(avaliacao.criado_em).toLocaleDateString("pt-BR")}
-													</td>
+    return (
+        <div>
+            <div className="flex h-screen w-screen bg-white text-black">
+                <Nav />
 
-													<td className="px-4 py-3">
-														<div className="flex justify-center gap-2">
-															<button
-																onClick={() => handleViewClick(avaliacao)}
-																className="text-black px-3 py-2 rounded-lg"
-																title="Visualizar"
-															>
-																<Eye />
-															</button>
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                    <Header />
 
-															<button
-																onClick={() => handleDownloadPdf(avaliacao)}
-																className="text-black px-3 py-2 rounded-lg"
-																title="Baixar PDF"
-															>
-																<Download />
-															</button>
-														</div>
-													</td>
-												</tr>
-											))}
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                    <div className='custom-scrollbar p-[32px] overflow-y-auto'>
+                        <div className="space-y-4">
 
-			{avaliacaoSelecionada && (
-				<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-					<div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-auto p-6">
-						<div className="flex justify-between items-center mb-4">
-							<h2 className="text-xl font-bold">
-								Ficha de Avaliação - {avaliacaoSelecionada.avaliado_nome}
-							</h2>
-							<button
-								onClick={() => setAvaliacaoSelecionada(null)}
-								className="text-2xl font-bold cursor-pointer hover:text-gray-600"
-							>
-								✕
-							</button>
-						</div>
+                            <h1 className="text-2xl font-bold">
+                                Avaliações Enviadas
+                            </h1>
 
-						{criterios.length > 0 ? (
-							<>
-								{(() => {
-									const notasMap: Record<string, number> = {};
-									criterios.forEach(criterio => {
-										const resultadoItem = avaliacaoSelecionada.resultado[criterio.criterio];
-										if (resultadoItem && resultadoItem.nota !== undefined) {
-											notasMap[criterio.criterio] = resultadoItem.nota;
-										}
-									});
-									return (
-										<FichaAvaliacaoTemplate
-											tipoAvaliacao={avaliacaoSelecionada.tipo_avaliacao}
-											modalidade={avaliacaoSelecionada.modalidade}
-											criterios={criterios}
-											notas={notasMap}
-											escalaLikert={escalaLikert}
-											pesos={pesos}
-											bases={bases}
-											observacoes={avaliacaoSelecionada.observacoes_gerais || ""}
-											pontosMelhorar={avaliacaoSelecionada.pontos_melhorar || ""}
-											planoAcao={avaliacaoSelecionada.plano_acao || ""}
-											userName={(avaliacaoSelecionada.avaliado_nome + " - " + avaliacaoSelecionada.avaliado_funcao) }
-											userBase={avaliacaoSelecionada.avaliado_base}
-											readOnly={true}
-											criado_em={avaliacaoSelecionada.criado_em}
-										/>
-									);
-								})()}
-							</>
-						) : (
-							<div className="flex items-center justify-center py-8">
-								<p className="text-gray-500">Carregando dados da avaliação...</p>
-							</div>
-						)}
-					</div>
-				</div>
-			)}
+                            <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-4 grid-rows-1 gap-3">
+                                <input
+                                    type="text"
+                                    value={filtroUsuario}
+                                    onChange={(e) => setFiltroUsuario(e.target.value)}
+                                    placeholder="Avaliado"
+                                    className="border rounded-lg px-3 py-2"
+                                />
 
-			{avaliacaoParaPdf && criteriosParaPdf.length > 0 && (
-				<div style={{ display: 'none' }}>
-					<div ref={fichaRefParaPdf}>
-						{(() => {
-							const notasMap: Record<string, number> = {};
-							criteriosParaPdf.forEach(criterio => {
-								const resultadoItem = avaliacaoParaPdf.resultado[criterio.criterio];
-								if (resultadoItem && resultadoItem.nota !== undefined) {
-									notasMap[criterio.criterio] = resultadoItem.nota;
-								}
-							});
-							return (
-								<FichaAvaliacaoTemplate
-									tipoAvaliacao={avaliacaoParaPdf.tipo_avaliacao}
-									modalidade={avaliacaoParaPdf.modalidade}
-									criterios={criteriosParaPdf}
-									notas={notasMap}
-									escalaLikert={escalaLikert}
-									pesos={pesos}
-									bases={bases}
-									observacoes={avaliacaoParaPdf.observacoes_gerais || ""}
-									pontosMelhorar={avaliacaoParaPdf.pontos_melhorar || ""}
-									planoAcao={avaliacaoParaPdf.plano_acao || ""}
-									userName={avaliacaoParaPdf.avaliado_nome}
-									userBase={avaliacaoParaPdf.avaliado_base}
-									readOnly={true}
-									criado_em={avaliacaoParaPdf.criado_em}
-								/>
-							);
-						})()}
-						<p className="text-xs text-gray-500 mt-2">
-							Documento gerado em: {new Date().toLocaleDateString("pt-BR")} às{" "}
-							{new Date().toLocaleTimeString("pt-BR")} por {user?.nome}
-						</p>
-					</div>
-				</div>
-			)}
-		</div>
-	);
+                                <select
+                                    value={statusFiltro}
+                                    onChange={(e) => setStatusFiltro(e.target.value)}
+                                    className="border rounded-lg px-3 py-1.5 text-sm"
+                                >
+                                    <option value="">Selecionar status</option>
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Inativo">Inativo</option>
+                                </select>
+
+                                <select
+                                    value={filtroTipo}
+                                    onChange={(e) => setFiltroTipo(e.target.value)}
+                                    className="border rounded-lg px-3 py-2"
+                                >
+                                    <option value="">Tipos de ficha</option>
+                                    {tipos.map(tipo => (
+                                        <option key={tipo} value={tipo}>
+                                            {tipo}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <div className="flex gap-2">
+                                    <DatePicker
+                                        selected={dataInicio}
+                                        onChange={(date: Date | null) => setDataInicio(date)}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Data inicial"
+                                        className="border rounded-lg px-3 py-2 w-full react-datepicker"
+                                    />
+                                    <DatePicker
+                                        selected={dataFim}
+                                        onChange={(date: Date | null) => setDataFim(date)}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Data final"
+                                        className="border rounded-lg px-3 py-2 w-full react-datepicker"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setFiltroUsuario("");
+                                        setFiltroFuncao("");
+                                        setFiltroTipo("");
+                                        setDataInicio(null);
+                                        setDataFim(null);
+                                        setFiltroBase("");
+                                    }}
+                                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                                >
+                                    Limpar filtros
+                                </button>
+                            </div>
+
+                            <div className="bg-white rounded-xl border overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-100 border-b">
+                                            <tr className="text-center">
+                                                <th className="px-4 py-3">#</th>
+                                                <th className="px-4 py-3">Avaliado</th>
+                                                <th className="px-4 py-3">Avaliador</th>
+                                                <th className="px-4 py-3">Tipo avaliação</th>
+                                                <th className="px-4 py-3">Data</th>
+                                                <th className="px-4 py-3">Ações</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {avaliacoesFiltradas.map((avaliacao) => (
+                                                <tr key={avaliacao.id} className="border-b hover:bg-gray-50">
+                                                    <td className="px-4 py-3">{avaliacao.id}</td>
+
+                                                    <td className="px-4 py-3 font-medium">
+                                                        {avaliacao.avaliado_funcao} - {avaliacao.avaliado_nome}
+                                                    </td>
+
+                                                    {avaliacao.avaliador_nome === user?.nome
+                                                        || avaliacao.avaliador_nome === avaliacao.avaliado_nome
+                                                        || isAdminGlobal ? (
+                                                        <td className="px-4 py-3">
+                                                            {avaliacao.avaliador_funcao} - {avaliacao.avaliador_nome}
+                                                        </td>
+                                                    ) : (
+                                                        <td className="px-4 py-3 blur select-none pointer-events-none">
+                                                            Anônimo
+                                                        </td>
+                                                    )}
+
+                                                    <td className="px-4 py-3">
+                                                        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                                                            {avaliacao.modalidade}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="px-4 py-3">
+                                                        {new Date(avaliacao.criado_em).toLocaleDateString("pt-BR")}
+                                                    </td>
+
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex justify-center gap-2">
+                                                            <button
+                                                                onClick={() => handleViewClick(avaliacao)}
+                                                                className="text-black px-3 py-2 rounded-lg"
+                                                                title="Visualizar"
+                                                            >
+                                                                <Eye />
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => handleDownloadPdf(avaliacao)}
+                                                                className="text-black px-3 py-2 rounded-lg"
+                                                                title="Baixar PDF"
+                                                            >
+                                                                <Download />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {avaliacaoSelecionada && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-auto p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold">
+                                Ficha de Avaliação - {avaliacaoSelecionada.avaliado_nome}
+                            </h2>
+                            <button
+                                onClick={() => setAvaliacaoSelecionada(null)}
+                                className="text-2xl font-bold cursor-pointer hover:text-gray-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {criterios.length > 0 ? (
+                            <>
+                                {(() => {
+                                    const notasMap: Record<string, number> = {};
+                                    criterios.forEach(criterio => {
+                                        const resultadoItem = avaliacaoSelecionada.resultado[criterio.criterio];
+                                        if (resultadoItem && resultadoItem.nota !== undefined) {
+                                            notasMap[criterio.criterio] = resultadoItem.nota;
+                                        }
+                                    });
+                                    return (
+                                        <FichaAvaliacaoTemplate
+                                            tipoAvaliacao={avaliacaoSelecionada.tipo_avaliacao}
+                                            modalidade={avaliacaoSelecionada.modalidade}
+                                            criterios={criterios}
+                                            notas={notasMap}
+                                            escalaLikert={escalaLikert}
+                                            pesos={pesos}
+                                            bases={bases}
+                                            observacoes={avaliacaoSelecionada.observacoes_gerais || ""}
+                                            pontosMelhorar={avaliacaoSelecionada.pontos_melhorar || ""}
+                                            planoAcao={avaliacaoSelecionada.plano_acao || ""}
+                                            userName={(avaliacaoSelecionada.avaliado_nome + " - " + avaliacaoSelecionada.avaliado_funcao)}
+                                            userBase={avaliacaoSelecionada.avaliado_base}
+                                            readOnly={true}
+                                            criado_em={avaliacaoSelecionada.criado_em}
+                                        />
+                                    );
+                                })()}
+                            </>
+                        ) : (
+                            <div className="flex items-center justify-center py-8">
+                                <p className="text-gray-500">Carregando dados da avaliação...</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {avaliacaoParaPdf && criteriosParaPdf.length > 0 && (
+                <div style={{ display: 'none' }}>
+                    <div ref={fichaRefParaPdf}>
+                        {(() => {
+                            const notasMap: Record<string, number> = {};
+                            criteriosParaPdf.forEach(criterio => {
+                                const resultadoItem = avaliacaoParaPdf.resultado[criterio.criterio];
+                                if (resultadoItem && resultadoItem.nota !== undefined) {
+                                    notasMap[criterio.criterio] = resultadoItem.nota;
+                                }
+                            });
+                            return (
+                                <FichaAvaliacaoTemplate
+                                    tipoAvaliacao={avaliacaoParaPdf.tipo_avaliacao}
+                                    modalidade={avaliacaoParaPdf.modalidade}
+                                    criterios={criteriosParaPdf}
+                                    notas={notasMap}
+                                    escalaLikert={escalaLikert}
+                                    pesos={pesos}
+                                    bases={bases}
+                                    observacoes={avaliacaoParaPdf.observacoes_gerais || ""}
+                                    pontosMelhorar={avaliacaoParaPdf.pontos_melhorar || ""}
+                                    planoAcao={avaliacaoParaPdf.plano_acao || ""}
+                                    userName={avaliacaoParaPdf.avaliado_nome}
+                                    userBase={avaliacaoParaPdf.avaliado_base}
+                                    readOnly={true}
+                                    criado_em={avaliacaoParaPdf.criado_em}
+                                />
+                            );
+                        })()}
+                        <p className="text-xs text-gray-500 mt-2">
+                            Documento gerado em: {new Date().toLocaleDateString("pt-BR")} às{" "}
+                            {new Date().toLocaleTimeString("pt-BR")} por {user?.nome}
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }
