@@ -301,6 +301,28 @@ export default function CadastroPage() {
         }
     }
 
+    async function reativar(usuarioId: number) {
+        if (!confirm("Deseja reativar este usuário?")) {
+            return;
+        }
+
+        try {
+            const res = await authFetch(`/api/usuarios/${usuarioId}/reativar`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (!res.ok) {
+                throw new Error("Erro ao reativar usuário");
+            }
+
+            alert(`Usuário reativado com sucesso!`);
+        } catch (error) {
+            console.error("Erro ao reativar usuário:", error);
+            alert("Erro ao reativar usuário");
+        }
+    }
+
     return (
         <div>
             <div className="flex h-screen w-screen bg-white text-black">
@@ -584,37 +606,52 @@ export default function CadastroPage() {
                                             </div>
 
                                             <div className="flex items-center gap-1.5 text-[16px]">
-                                                <button
-                                                    onClick={() => verInfoUsuario(user.id)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                                                    title="Ver informações de frequência"
-                                                >
-                                                    !
-                                                </button>
+                                                {user.ativo === true ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() => verInfoUsuario(user.id)}
+                                                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                                                            title="Ver informações de frequência"
+                                                        >
+                                                            !
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => editarUsuario(user)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                                                    title="Editar usuário"
-                                                >
-                                                    <Pencil size={16} />
-                                                </button>
+                                                        <button
+                                                            onClick={() => editarUsuario(user)}
+                                                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                                                            title="Editar usuário"
+                                                        >
+                                                            <Pencil size={16} />
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => senhaMaster(user.id)}
-                                                    className="h-8 px-3 flex items-center justify-center rounded-lg border border-red-100 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors"
-                                                    title="Resetar senha"
-                                                >
-                                                    Resetar Senha
-                                                </button>
+                                                            <button
+                                                                onClick={() => senhaMaster(user.id)}
+                                                                className="h-8 px-3 flex items-center justify-center rounded-lg border border-red-100 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors"
+                                                                title="Resetar senha"
+                                                            >
+                                                                Resetar Senha
+                                                            </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => reativar(user.id)}
+                                                        className="h-8 px-3 flex items-center justify-center rounded-lg border border-green-500 text-green-500 text-xs font-medium hover:bg-green-50 transition-colors"
+                                                        title="Reativar usuário"
+                                                    >
+                                                        Reativar Usuário
+                                                    </button>
+                                                )}
 
-                                                <button
-                                                    onClick={() => removerUsuario(user.id)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
-                                                    title="Remover usuário"
-                                                >
-                                                    <Trash size={16} />
-                                                </button>
+
+                                                {user?.ativo === true && (
+                                                    <button
+                                                        onClick={() => removerUsuario(user.id)}
+                                                        className="h-8 w-8 flex items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
+                                                        title="Remover usuário"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

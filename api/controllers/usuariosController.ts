@@ -177,3 +177,21 @@ export async function resetSenha(req: Request, res: Response) {
     res.status(500).json({ erro: error.message });
   }
 }
+
+export async function reativar(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `
+        UPDATE usuarios
+        SET ativo = true
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+    res.json(rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ erro: error.message });
+  }
+}
