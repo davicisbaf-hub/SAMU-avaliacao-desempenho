@@ -98,6 +98,7 @@ export default function CadastroPage() {
     const [infoUsuario, setInfoUsuario] = useState<InfoUsuario | null>(null);
     const [carregandoInfo, setCarregandoInfo] = useState(false);
     const [funcaoSelecionada, setFuncaoSelecionada] = useState<string | null>(null);
+    const [statusFiltro, setStatusFiltro] = useState("");
 
 
     const usuariosFiltrados = usuarios
@@ -135,11 +136,11 @@ export default function CadastroPage() {
 
     useEffect(() => {
         carregarUsuarios();
-    }, []);
+    }, [statusFiltro]);
 
     async function carregarUsuarios() {
         try {
-            const res = await authFetch("/api/usuarios");
+            const res = await authFetch(`/api/usuarios?status=${statusFiltro}`);
             const data = await res.json();
 
             setUsuarios(Array.isArray(data) ? data : []);
@@ -525,14 +526,25 @@ export default function CadastroPage() {
                                         </p>
                                     </div>
                                         
-                                        
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar por nome ou ID..."
-                                        value={busca}
-                                        onChange={(e) => setBusca(e.target.value)}
-                                        className="border rounded-lg px-3 py-1.5 text-sm w-56"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            value={statusFiltro}
+                                            onChange={(e) => setStatusFiltro(e.target.value)}
+                                            className="border rounded-lg px-3 py-1.5 text-sm"
+                                        >
+                                            <option value="">Selecionar status</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Inativo">Inativo</option>
+                                        </select>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar por nome ou ID..."
+                                            value={busca}
+                                            onChange={(e) => setBusca(e.target.value)}
+                                            className="border rounded-lg px-3 py-1.5 text-sm w-56"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>

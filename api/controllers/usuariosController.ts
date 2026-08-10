@@ -5,12 +5,24 @@ import validarCpf from "validar-cpf";
 
 export async function listar(req: Request, res: Response) {
   try {
+    const { status } = req.query; 
+
+    let whereClause = "";
+    const params: any[] = [];
+
+    if (status === "Ativo") {
+      whereClause = "WHERE ativo = true";
+    } else if (status === "Inativo") {
+      whereClause = "WHERE ativo = false";
+    }
+
     const { rows } = await pool.query(`
       SELECT id, nome, email, funcao, perfil, base, ativo, criado_em, par
       FROM usuarios
-      WHERE ativo = true
+      ${whereClause}
       ORDER BY nome
-    `);
+    `, params);
+
     res.json(rows);
   } catch (error: any) {
     res.status(500).json({ erro: error.message });
