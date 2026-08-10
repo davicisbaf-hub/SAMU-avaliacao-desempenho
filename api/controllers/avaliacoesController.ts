@@ -57,6 +57,7 @@ export async function listar(req: Request, res: Response) {
         avaliado.nome AS avaliado_nome,
         avaliado.base AS avaliado_base,
         avaliado.funcao AS avaliado_funcao,
+        avaliado.ativo AS avaliado_ativo,
         a.modalidade,
         a.tipo_avaliacao,
         a.resultado,
