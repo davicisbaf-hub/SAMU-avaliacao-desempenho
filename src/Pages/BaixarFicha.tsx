@@ -87,7 +87,11 @@ export default function BaixarFicha() {
     const fichaRefParaPdf = useRef<HTMLDivElement>(null);
     const [avaliacaoParaPdf, setAvaliacaoParaPdf] = useState<Avaliacao | null>(null);
     const [criteriosParaPdf, setCriteriosParaPdf] = useState<Criterios[]>([]);
+<<<<<<< HEAD
     const [statusFiltro, setStatusFiltro] = useState("Ativo");
+=======
+    const [statusFiltro, setStatusFiltro] = useState("");
+>>>>>>> 7e28111e71205b33f434157403d00463054c907e
 
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
@@ -346,7 +350,10 @@ export default function BaixarFicha() {
                                         setDataInicio(null);
                                         setDataFim(null);
                                         setFiltroBase("");
+<<<<<<< HEAD
                                         setStatusFiltro("");
+=======
+>>>>>>> 7e28111e71205b33f434157403d00463054c907e
                                     }}
                                     className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
                                 >
