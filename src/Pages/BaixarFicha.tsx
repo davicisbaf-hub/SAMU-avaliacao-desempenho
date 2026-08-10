@@ -87,7 +87,7 @@ export default function BaixarFicha() {
     const fichaRefParaPdf = useRef<HTMLDivElement>(null);
     const [avaliacaoParaPdf, setAvaliacaoParaPdf] = useState<Avaliacao | null>(null);
     const [criteriosParaPdf, setCriteriosParaPdf] = useState<Criterios[]>([]);
-    const [statusFiltro, setStatusFiltro] = useState("");
+    const [statusFiltro, setStatusFiltro] = useState("Ativo");
 
     const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 

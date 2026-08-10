@@ -31,6 +31,7 @@ type Usuario = {
     perfil: string;
     quantidade: number;
     matricula: string;
+    ativo: boolean;
 };
 
 type Ficha = {
@@ -739,7 +740,9 @@ export default function CadastroPage() {
 
                             <label className="text-xs font-semibold">Par</label>
                             <MultiSelectPar
-                                usuarios={usuarios.map(({ id, nome, funcao }) => ({ id, nome, funcao }))}
+                                usuarios={usuarios
+                                    .filter((u) => u.ativo !== false)
+                                    .map(({ id, nome, funcao }) => ({ id, nome, funcao }))}
                                 value={parEdicao}
                                 onChange={setParEdicao}
                                 dropUp
