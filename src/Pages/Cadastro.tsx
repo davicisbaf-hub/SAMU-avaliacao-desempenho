@@ -31,6 +31,7 @@ type Usuario = {
     perfil: string;
     quantidade: number;
     matricula: string;
+    ativo: boolean;
 };
 
 type Ficha = {
@@ -98,6 +99,7 @@ export default function CadastroPage() {
     const [infoUsuario, setInfoUsuario] = useState<InfoUsuario | null>(null);
     const [carregandoInfo, setCarregandoInfo] = useState(false);
     const [funcaoSelecionada, setFuncaoSelecionada] = useState<string | null>(null);
+    const [statusFiltro, setStatusFiltro] = useState("Ativo");
 
 
     const usuariosFiltrados = usuarios
@@ -135,11 +137,11 @@ export default function CadastroPage() {
 
     useEffect(() => {
         carregarUsuarios();
-    }, []);
+    }, [statusFiltro]);
 
     async function carregarUsuarios() {
         try {
-            const res = await authFetch("/api/usuarios");
+            const res = await authFetch(`/api/usuarios?status=${statusFiltro}`);
             const data = await res.json();
 
             setUsuarios(Array.isArray(data) ? data : []);
@@ -297,6 +299,28 @@ export default function CadastroPage() {
         } catch (error) {
             console.error("Erro ao resetar senha:", error);
             alert("Erro ao resetar senha do usuário");
+        }
+    }
+
+    async function reativar(usuarioId: number) {
+        if (!confirm("Deseja reativar este usuário?")) {
+            return;
+        }
+
+        try {
+            const res = await authFetch(`/api/usuarios/${usuarioId}/reativar`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (!res.ok) {
+                throw new Error("Erro ao reativar usuário");
+            }
+
+            alert(`Usuário reativado com sucesso!`);
+        } catch (error) {
+            console.error("Erro ao reativar usuário:", error);
+            alert("Erro ao reativar usuário");
         }
     }
 
@@ -525,14 +549,25 @@ export default function CadastroPage() {
                                         </p>
                                     </div>
                                         
-                                        
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar por nome ou ID..."
-                                        value={busca}
-                                        onChange={(e) => setBusca(e.target.value)}
-                                        className="border rounded-lg px-3 py-1.5 text-sm w-56"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            value={statusFiltro}
+                                            onChange={(e) => setStatusFiltro(e.target.value)}
+                                            className="border rounded-lg px-3 py-1.5 text-sm"
+                                        >
+                                            <option value="">Selecionar status</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Inativo">Inativo</option>
+                                        </select>
+
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar por nome ou ID..."
+                                            value={busca}
+                                            onChange={(e) => setBusca(e.target.value)}
+                                            className="border rounded-lg px-3 py-1.5 text-sm w-56"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -572,37 +607,52 @@ export default function CadastroPage() {
                                             </div>
 
                                             <div className="flex items-center gap-1.5 text-[16px]">
-                                                <button
-                                                    onClick={() => verInfoUsuario(user.id)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                                                    title="Ver informações de frequência"
-                                                >
-                                                    !
-                                                </button>
+                                                {user.ativo === true ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() => verInfoUsuario(user.id)}
+                                                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                                                            title="Ver informações de frequência"
+                                                        >
+                                                            !
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => editarUsuario(user)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                                                    title="Editar usuário"
-                                                >
-                                                    <Pencil size={16} />
-                                                </button>
+                                                        <button
+                                                            onClick={() => editarUsuario(user)}
+                                                            className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                                                            title="Editar usuário"
+                                                        >
+                                                            <Pencil size={16} />
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => senhaMaster(user.id)}
-                                                    className="h-8 px-3 flex items-center justify-center rounded-lg border border-red-100 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors"
-                                                    title="Resetar senha"
-                                                >
-                                                    Resetar Senha
-                                                </button>
+                                                            <button
+                                                                onClick={() => senhaMaster(user.id)}
+                                                                className="h-8 px-3 flex items-center justify-center rounded-lg border border-red-100 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors"
+                                                                title="Resetar senha"
+                                                            >
+                                                                Resetar Senha
+                                                            </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => reativar(user.id)}
+                                                        className="h-8 px-3 flex items-center justify-center rounded-lg border border-green-500 text-green-500 text-xs font-medium hover:bg-green-50 transition-colors"
+                                                        title="Reativar usuário"
+                                                    >
+                                                        Reativar Usuário
+                                                    </button>
+                                                )}
 
-                                                <button
-                                                    onClick={() => removerUsuario(user.id)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
-                                                    title="Remover usuário"
-                                                >
-                                                    <Trash size={16} />
-                                                </button>
+
+                                                {user?.ativo === true && (
+                                                    <button
+                                                        onClick={() => removerUsuario(user.id)}
+                                                        className="h-8 w-8 flex items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
+                                                        title="Remover usuário"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -690,7 +740,9 @@ export default function CadastroPage() {
 
                             <label className="text-xs font-semibold">Par</label>
                             <MultiSelectPar
-                                usuarios={usuarios.map(({ id, nome, funcao }) => ({ id, nome, funcao }))}
+                                usuarios={usuarios
+                                    .filter((u) => u.ativo !== false)
+                                    .map(({ id, nome, funcao }) => ({ id, nome, funcao }))}
                                 value={parEdicao}
                                 onChange={setParEdicao}
                                 dropUp

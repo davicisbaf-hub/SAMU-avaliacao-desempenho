@@ -36,15 +36,34 @@ async function determinarNivel(criadoEm: Date): Promise<string> {
 
 export async function listar(req: Request, res: Response) {
   try {
-    const { base } = req.query as { base?: string | string[] };
+    const { base, dataInicio, dataFim } = req.query as {
+      base?: string | string[];
+      dataInicio?: string;
+      dataFim?: string;
+    };
     const bases = Array.isArray(base)
       ? base
       : base
       ? base.split(",").map((b) => b.trim()).filter(Boolean)
       : [];
+
     const params: any[] = [];
-    const whereClause = bases.length ? `WHERE avaliado.base = ANY($1)` : "";
-    if (bases.length) params.push(bases);
+    const condicoes: string[] = [];
+
+    if (bases.length) {
+      params.push(bases);
+      condicoes.push(`avaliado.base = ANY($${params.length})`);
+    }
+    if (dataInicio) {
+      params.push(dataInicio);
+      condicoes.push(`a.criado_em >= $${params.length}::date`);
+    }
+    if (dataFim) {
+      params.push(dataFim);
+      condicoes.push(`a.criado_em < ($${params.length}::date + INTERVAL '1 day')`);
+    }
+
+    const whereClause = condicoes.length ? `WHERE ${condicoes.join(" AND ")}` : "";
 
     const { rows } = await pool.query(`
       SELECT
@@ -57,6 +76,7 @@ export async function listar(req: Request, res: Response) {
         avaliado.nome AS avaliado_nome,
         avaliado.base AS avaliado_base,
         avaliado.funcao AS avaliado_funcao,
+        avaliado.ativo AS avaliado_ativo,
         a.modalidade,
         a.tipo_avaliacao,
         a.resultado,
@@ -65,8 +85,8 @@ export async function listar(req: Request, res: Response) {
         a.plano_acao,
         a.criado_em
       FROM avaliacoes a
-      JOIN usuarios avaliador ON avaliador.id = a.avaliador_id AND avaliador.ativo = TRUE
-      JOIN usuarios avaliado ON avaliado.id = a.avaliado_id AND avaliado.ativo = TRUE
+      JOIN usuarios avaliador ON avaliador.id = a.avaliador_id
+      JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
       ${whereClause}
       ORDER BY a.criado_em DESC
     `, params);
@@ -103,9 +123,9 @@ export async function criar(req: Request, res: Response) {
       });
     }
 
-    // ========== Buscar dados do usuário avaliado (apenas se ativo) ==========
+    // ========== Buscar dados do usuário avaliado  ==========
     const usuarioResult = await pool.query(
-      `SELECT id, criado_em FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+      `SELECT id, criado_em FROM usuarios WHERE id = $1`,
       [avaliadoId]
     );
 
@@ -113,9 +133,9 @@ export async function criar(req: Request, res: Response) {
       return res.status(404).json({ erro: "Usuário avaliado não encontrado ou inativo." });
     }
 
-    // ========== Buscar dados do avaliador (apenas se ativo) ==========
+    // ========== Buscar dados do avaliador  ==========
     const avaliadorResult = await pool.query(
-      `SELECT id FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+      `SELECT id FROM usuarios WHERE id = $1`,
       [avaliadorId]
     );
 
@@ -376,7 +396,7 @@ export async function infosUsuario(req: Request, res: Response) {
 
     // Busca dados do usuário (incluindo nome) — apenas se ativo
     const usuarioResult = await pool.query(
-      `SELECT id, nome, criado_em FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+      `SELECT id, nome, criado_em FROM usuarios WHERE id = $1`,
       [usuarioId]
     );
 
@@ -420,7 +440,7 @@ export async function infosUsuario(req: Request, res: Response) {
     if (avaliadorId && modalidade && tipoAvaliacao) {
       // Confirma que o avaliador também está ativo antes de considerar a consulta
       const avaliadorResult = await pool.query(
-        `SELECT id FROM usuarios WHERE id = $1 AND ativo = TRUE`,
+        `SELECT id FROM usuarios WHERE id = $1`,
         [avaliadorId]
       );
 

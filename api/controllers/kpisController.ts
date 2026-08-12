@@ -3,15 +3,39 @@ import pool from "../pool";
 
 export async function avaliacoesPorCategoria(req: Request, res: Response) {
   try {
-    const { base } = req.query as { base?: string | string[] };
+    const { base, dataInicio, dataFim, statusKPI } = req.query as {
+      base?: string | string[];
+      dataInicio?: string;
+      dataFim?: string;
+      statusKPI?: string;
+    };
     const bases: string[] = Array.isArray(base)
       ? base
       : base
         ? base.split(",").map((value) => value.trim()).filter(Boolean)
         : [];
-    const params: string[] = [];
-    const whereClause = bases.length ? `AND avaliado.base = ANY($1)` : "";
-    if (bases.length) params.push(bases);
+
+    const params: any[] = [];
+    const condicoes: string[] = [`a.resultado->ca.criterio->>'nota' IS NOT NULL`];
+
+    if (statusKPI === "true" || statusKPI === "false") {
+      params.push(statusKPI === "true");
+      condicoes.push(`avaliado.ativo = $${params.length}`);
+    }
+    if (bases.length) {
+      params.push(bases);
+      condicoes.push(`avaliado.base = ANY($${params.length})`);
+    }
+    if (dataInicio) {
+      params.push(dataInicio);
+      condicoes.push(`a.criado_em >= $${params.length}::date`);
+    }
+    if (dataFim) {
+      params.push(dataFim);
+      condicoes.push(`a.criado_em < ($${params.length}::date + INTERVAL '1 day')`);
+    }
+
+    const whereClause = `WHERE ${condicoes.join(" AND ")}`;
 
     const { rows } = await pool.query(`
       SELECT
@@ -30,10 +54,8 @@ export async function avaliacoesPorCategoria(req: Request, res: Response) {
         MIN(CAST(a.resultado->ca.criterio->>'nota' AS INT)) as nota_minima,
         SUM(CAST(a.resultado->ca.criterio->>'peso' AS INT)) as soma_pesos
       FROM avaliacoes a
-      JOIN criterios_avaliacao ca ON a.tipo_avaliacao = ca.tipo AND ca.ativo = true
+      JOIN criterios_avaliacao ca ON a.tipo_avaliacao = ca.tipo
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
-      WHERE a.resultado->ca.criterio->>'nota' IS NOT NULL
-      AND avaliado.ativo = true
       ${whereClause}
       GROUP BY ca.categoria, a.tipo_avaliacao, ca.tipo
       ORDER BY a.tipo_avaliacao, ca.categoria
@@ -70,7 +92,6 @@ export async function avaliacoesPorProfissional(req: Request, res: Response) {
         )::NUMERIC, 2) as media_geral
       FROM avaliacoes a
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
-      WHERE avaliado.ativo = true
       ${whereClause}
       GROUP BY avaliado.id, avaliado.nome, avaliado.funcao, a.tipo_avaliacao
       ORDER BY a.tipo_avaliacao, avaliado.funcao

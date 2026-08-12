@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useUserSession } from "../contexts/UserSession";
 import { useAuthFetch } from "../hooks/useAuthFetch";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import {
   ResponsiveContainer,
@@ -42,6 +44,10 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
   const [carregando, setCarregando] = useState(true);
   const [tiposFiltrados, setTiposFiltrados] = useState<Set<string>>(new Set());
   const isAdminGlobal = user?.perfil === "Administrador / CISBAF";
+  const [dataInicio, setDataInicio] = useState<Date | null>(null);
+  const [dataFim, setDataFim] = useState<Date | null>(null);
+  const [statusKPI, setStatusKPI] = useState("true")
+
   const baseFilter = selectedBases.length > 0
     ? selectedBases
     : isAdminGlobal
@@ -50,14 +56,27 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
         ? [user.base]
         : [];
 
+  const formatDate = (d: Date | null) =>
+    d ? d.toISOString().split("T")[0] : null;
+
+  const buildParams = () => {
+    const params = new URLSearchParams();
+    if (baseFilter.length) params.set("base", baseFilter.join(","));
+    const di = formatDate(dataInicio);
+    const df = formatDate(dataFim);
+    if (di) params.set("dataInicio", di);
+    if (df) params.set("dataFim", df);
+    if (statusKPI) params.set("statusKPI", statusKPI);
+    return params.toString();
+  };
+
   useEffect(() => {
     async function carregarKPIs() {
       try {
         setCarregando(true);
 
-        const url = baseFilter.length
-          ? `/api/kpis/avaliacoes-por-categoria?base=${encodeURIComponent(baseFilter.join(","))}`
-          : "/api/kpis/avaliacoes-por-categoria";
+        const qs = buildParams();
+        const url = `/api/kpis/avaliacoes-por-categoria${qs ? `?${qs}` : ""}`;
 
         const res = await authFetch(url);
         const dados = await res.json();
@@ -90,24 +109,22 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
 
     carregarKPIs();
 
-  }, [baseFilter.join(",")]);
+  }, [baseFilter.join(","), dataInicio, dataFim, statusKPI]);
 
   useEffect(() => {
     async function carregarAvaliacoes() {
       try {
-        const url = baseFilter.length
-          ? `/api/avaliacoes?base=${encodeURIComponent(baseFilter.join(","))}`
-          : "/api/avaliacoes";
+        const qs = buildParams();
+        const url = `/api/avaliacoes${qs ? `?${qs}` : ""}`;
         const res = await authFetch(url);
         const data = await res.json();
         setAvaliacoesFull(Array.isArray(data) ? data : []);
       } catch (err) {
-        
         setAvaliacoesFull([]);
       }
     }
     carregarAvaliacoes();
-  }, [baseFilter.join(",")]);
+  }, [baseFilter.join(","), dataInicio, dataFim]);
 
   const tiposDisponiveis = isAdminGlobal
   ? Array.from(new Set(kpis.map(k => k.tipo_avaliacao)))
@@ -250,6 +267,29 @@ export default function KPIAvaliacoesPorCategoria({ onStatusChange }: Props) {
             {tipo}
           </button>
         ))}
+
+        <div className="flex gap-2">
+          <DatePicker
+            selected={dataInicio}
+            onChange={(date: Date | null) => setDataInicio(date)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Data inicial"
+            className="border rounded-lg px-3 py-2 w-full react-datepicker"
+          />
+          <DatePicker
+            selected={dataFim}
+            onChange={(date: Date | null) => setDataFim(date)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Data final"
+            className="border rounded-lg px-3 py-2 w-full react-datepicker"
+          />
+        </div>
+
+        <select value={statusKPI} onChange={(e) => setStatusKPI(e.target.value)}>
+          <option value="">Todos</option>
+          <option value="true">Ativo</option>
+          <option value="false">Inativo</option>
+        </select>
 
       </div>
         <div className="bg-white rounded-lg border p-6">

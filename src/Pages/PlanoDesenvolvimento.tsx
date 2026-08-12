@@ -2,7 +2,6 @@ import { useRef, useEffect, useState, useMemo } from 'react';
 import Header from '../components/Header';
 import Nav from '../components/Nav';
 import { useUserSession } from '../contexts/UserSession';
-import { Download, FileDown } from "lucide-react";
 import { useReactToPrint } from 'react-to-print';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -14,6 +13,7 @@ type Avaliacao = {
   id: number;
   avaliado_nome: string;
   avaliado_funcao: string;
+  avaliado_ativo: boolean;
   tipo_avaliacao: string;
   resultado: any;
   criado_em: string;
@@ -52,6 +52,15 @@ type EvolucaoConsolidadaItem = {
   orientacao: string;
 };
 
+type ProfissionalAgregado = {
+  nome: string;
+  funcao: string;
+  ativo: boolean;
+  fichas: FichaProcessada[];
+  porTipo: Record<string, FichaProcessada[]>;
+  porTipoFicha: Record<string, FichaProcessada[]>;
+};
+
 type ModalState = { profKey: string; fichaId: number | 'comparativo'; tipoAvaliacao?: string } | null;
 
 const TIPO_LABEL: Record<string, string> = {
@@ -78,6 +87,7 @@ export default function PlanoDesenvolvimento() {
   const [buscaTexto, setBuscaTexto] = useState('');
   const [filtroPendencia, setFiltroPendencia] = useState<'todos' | 'com' | 'sem'>('todos');
   const [filtroTipoComparativo, setFiltroTipoComparativo] = useState<string>('todos');
+  const [filtroAtivo, setFiltroAtivo] = useState<'todos' | 'ativo' | 'inativo'>('ativo');
 
   const [filtroTipoFichaModal, setFiltroTipoFichaModal] = useState<string>('todos');
 
@@ -173,13 +183,7 @@ export default function PlanoDesenvolvimento() {
       grupos[chave].push(aval);
     });
 
-    const resultado: Record<string, {
-      nome: string;
-      funcao: string;
-      fichas: FichaProcessada[];
-      porTipo: Record<string, FichaProcessada[]>;
-      porTipoFicha: Record<string, FichaProcessada[]>;
-    }> = {};
+    const resultado: Record<string, ProfissionalAgregado> = {};
 
     Object.entries(grupos).forEach(([chave, lista]) => {
       const ordenada = [...lista].sort(
@@ -262,6 +266,7 @@ export default function PlanoDesenvolvimento() {
       resultado[chave] = { 
         nome: ordenada[0].avaliado_nome, 
         funcao: ordenada[0].avaliado_funcao, 
+        ativo: ordenada[ordenada.length - 1].avaliado_ativo, // pega o status mais recente
         fichas, 
         porTipo,
         porTipoFicha
@@ -381,7 +386,7 @@ export default function PlanoDesenvolvimento() {
           }
         };
       })
-      .filter((item): item is { key: string; prof: any } => item !== null)
+      .filter((item): item is { key: string; prof: ProfissionalAgregado } => item !== null)
       .filter(({ prof }) => {
         // Aplica os outros filtros
         if (filtroFuncao !== 'Todas' && prof.funcao !== filtroFuncao) return false;
@@ -398,9 +403,15 @@ export default function PlanoDesenvolvimento() {
           if (filtroPendencia === 'sem' && temPendenciaAtual) return false;
         }
 
+        if (filtroAtivo !== 'todos') {
+          const estaAtivo = prof.ativo !== false;
+          const querAtivo = filtroAtivo === 'ativo';
+          if (estaAtivo !== querAtivo) return false;
+        }
+
         return true;
       });
-  }, [porProfissional, filtroFuncao, buscaTexto, filtroPendencia, dataInicio, dataFim]);
+  }, [porProfissional, filtroFuncao, buscaTexto, filtroPendencia, filtroAtivo, dataInicio, dataFim]);
 
   const profModal = modalFicha ? porProfissional[modalFicha.profKey] : null;
   const modoComparativo = modalFicha?.fichaId === 'comparativo';
@@ -525,6 +536,15 @@ export default function PlanoDesenvolvimento() {
                 <option value="todos">Todos</option>
                 <option value="com">Com pendências</option>
                 <option value="sem">Sem pendências</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-xs text-gray-500 mb-1">Status do profissional</label>
+              <select value={filtroAtivo} onChange={(e) => setFiltroAtivo(e.target.value as any)} className="border rounded-md px-3 py-2 text-sm bg-white">
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+                <option value="todos">Todos</option>
               </select>
             </div>
 
