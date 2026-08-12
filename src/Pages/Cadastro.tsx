@@ -99,7 +99,7 @@ export default function CadastroPage() {
     const [infoUsuario, setInfoUsuario] = useState<InfoUsuario | null>(null);
     const [carregandoInfo, setCarregandoInfo] = useState(false);
     const [funcaoSelecionada, setFuncaoSelecionada] = useState<string | null>(null);
-    const [statusFiltro, setStatusFiltro] = useState("");
+    const [statusFiltro, setStatusFiltro] = useState("Ativo");
 
 
     const usuariosFiltrados = usuarios

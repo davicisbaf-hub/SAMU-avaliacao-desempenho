@@ -36,15 +36,34 @@ async function determinarNivel(criadoEm: Date): Promise<string> {
 
 export async function listar(req: Request, res: Response) {
   try {
-    const { base } = req.query as { base?: string | string[] };
+    const { base, dataInicio, dataFim } = req.query as {
+      base?: string | string[];
+      dataInicio?: string;
+      dataFim?: string;
+    };
     const bases = Array.isArray(base)
       ? base
       : base
       ? base.split(",").map((b) => b.trim()).filter(Boolean)
       : [];
+
     const params: any[] = [];
-    const whereClause = bases.length ? `WHERE avaliado.base = ANY($1)` : "";
-    if (bases.length) params.push(bases);
+    const condicoes: string[] = [];
+
+    if (bases.length) {
+      params.push(bases);
+      condicoes.push(`avaliado.base = ANY($${params.length})`);
+    }
+    if (dataInicio) {
+      params.push(dataInicio);
+      condicoes.push(`a.criado_em >= $${params.length}::date`);
+    }
+    if (dataFim) {
+      params.push(dataFim);
+      condicoes.push(`a.criado_em < ($${params.length}::date + INTERVAL '1 day')`);
+    }
+
+    const whereClause = condicoes.length ? `WHERE ${condicoes.join(" AND ")}` : "";
 
     const { rows } = await pool.query(`
       SELECT
