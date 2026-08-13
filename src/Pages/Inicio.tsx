@@ -87,8 +87,9 @@ export default function Inicio() {
               
               <div className='flex items-start gap-4'>
                 <div className='w-16 h-16 rounded-2xl bg-[#cd0048] flex items-center justify-center shrink-0 samuSpan'>
-                  <span className='text-white font-black text-xl'>192</span>
+                  <span className='text-white font-black text-xl'>192</span> 
                 </div>
+                
 
                 <div className='text-left'>
                   
