@@ -54,7 +54,7 @@ export async function avaliacoesPorCategoria(req: Request, res: Response) {
         MIN(CAST(a.resultado->ca.criterio->>'nota' AS INT)) as nota_minima,
         SUM(CAST(a.resultado->ca.criterio->>'peso' AS INT)) as soma_pesos
       FROM avaliacoes a
-      JOIN criterios_avaliacao ca ON a.tipo_avaliacao = ca.tipo
+      JOIN criterios_avaliacao ca ON a.tipo_avaliacao = ca.tipo AND ca.ativo = true
       JOIN usuarios avaliado ON avaliado.id = a.avaliado_id
       ${whereClause}
       GROUP BY ca.categoria, a.tipo_avaliacao, ca.tipo
