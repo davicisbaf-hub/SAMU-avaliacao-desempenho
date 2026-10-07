@@ -3,6 +3,7 @@ import { env } from "../config/env.ts";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { rateLimit } from "express-rate-limit";
 import { parse } from "yaml";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -15,6 +16,12 @@ import { readFileSync } from "fs";
 
 const app = express();
 const port = env.port || 3001;
+const apiRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 200,
+  standardHeaders: "draft-8",
+  legacyHeaders: false
+});
 
 app.use(express.json());
 app.use((req, res, next) => {
@@ -37,6 +44,7 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
+app.use(apiRateLimiter);
 
 const ScalarDocs = parse(
   readFileSync(join(__dirname, "ScalarDocs.yaml"), "utf-8")
