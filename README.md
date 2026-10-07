@@ -7,7 +7,7 @@
 ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 
-# SAMU - Sistema de Avaliação de Desempenho v2
+# SAMU - Sistema de Avaliação de Desempenho
 
 **Plataforma web para gerenciamento e avaliação de desempenho de profissionais do SAMU** (Serviço de Atendimento Móvel de Urgência).
 
